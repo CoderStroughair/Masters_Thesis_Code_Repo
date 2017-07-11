@@ -1,0 +1,18 @@
+﻿C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppBuild.targets(392,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (Lab6.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  main.cpp
+b:\masters thesis\raycast solution\lab1_cs7057\antons_maths_funcs.h(591): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+b:\masters thesis\raycast solution\lab1_cs7057\antons_maths_funcs.h(595): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+b:\masters thesis\raycast solution\lab1_cs7057\antons_maths_funcs.h(942): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+b:\masters thesis\raycast solution\lab1_cs7057\antons_maths_funcs.h(954): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+b:\masters thesis\raycast solution\lab1_cs7057\antons_maths_funcs.h(966): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+b:\masters thesis\raycast solution\lab1_cs7057\antons_maths_funcs.h(1014): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+b:\masters thesis\raycast solution\lab1_cs7057\antons_maths_funcs.h(1031): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+b:\masters thesis\raycast solution\lab1_cs7057\antons_maths_funcs.h(1032): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+b:\masters thesis\raycast solution\lab1_cs7057\antons_maths_funcs.h(1033): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+b:\masters thesis\raycast solution\lab1_cs7057\antons_maths_funcs.h(1034): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+b:\masters thesis\raycast solution\lab1_cs7057\antons_maths_funcs.h(1039): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+b:\masters thesis\raycast solution\lab1_cs7057\main.cpp(42): warning C4244: 'initializing': conversion from 'const float' to 'int', possible loss of data
+b:\masters thesis\raycast solution\lab1_cs7057\main.cpp(201): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+b:\masters thesis\raycast solution\lab1_cs7057\main.cpp(207): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+  Lab1_CS7057.vcxproj -> B:\Masters Thesis\Raycast Solution\Debug\GPURaycast.exe
+  Lab1_CS7057.vcxproj -> B:\Masters Thesis\Raycast Solution\Debug\GPURaycast.pdb (Full PDB)

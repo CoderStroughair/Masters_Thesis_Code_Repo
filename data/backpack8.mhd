@@ -1,0 +1,6 @@
+NDims = 3
+DimSize = 512 512 373
+ElementType = MET_UCHAR
+ElementSpacing = 0.78128 0.78128 1
+ElementByteOrderMSB = False
+ElementDataFile = backpack8.mhd.raw

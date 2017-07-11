@@ -1,0 +1,13 @@
+ObjectFileName: Tooth_RGBA_2.raw
+TaggedFileName: ---
+Resolution:     140 120 161
+SliceThickness: 1.0 1.0 1.0
+Format:         UCHAR
+NbrTags:        0
+ObjectType:     TEXTURE_VOLUME_OBJECT
+ObjectModel:    RGBA
+GridType:       EQUIDISTANT
+Modality:       unknown
+TimeStep:       0
+Unit:           mm
+

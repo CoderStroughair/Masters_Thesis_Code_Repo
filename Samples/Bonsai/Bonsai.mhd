@@ -1,0 +1,7 @@
+NDims = 3
+DimSize = 256 256 256
+ElementType = MET_UCHAR
+ElementSpacing = 1.0 1.0 1.0
+ElementByteOrderMSB = TRUE
+ElementDataFile = bonsai.raw
+Timesteps = 1

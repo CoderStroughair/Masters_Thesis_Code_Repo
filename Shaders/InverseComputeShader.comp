@@ -1,0 +1,15 @@
+#version 430
+layout (local_size_x = 1, local_size_y = 1) in;
+layout (rgba32f, binding = 0) uniform image2D img_output;
+
+void main () 
+{
+//first section sets up the pixel initially, and the ray that will be thrown
+	ivec2 pixel_coords = ivec2 (gl_GlobalInvocationID.xy);
+	vec4 pixel = imageLoad(img_output, pixel_coords);
+
+	pixel = vec4(1.0f - pixel.r/2.0, 1.0f - pixel.g*2.0, 0.0f + pixel.b/2.0, pixel.a);
+
+//stores the result in the texture
+	imageStore (img_output, pixel_coords, pixel);
+}

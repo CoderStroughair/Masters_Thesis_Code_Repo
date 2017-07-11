@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VoreenData version="1">
+    <TransFuncIntensity type="TransFuncIntensity">
+        <domain x="0" y="1"/>
+        <threshold x="0" y="1"/>
+        <Keys>
+            <key type="TransFuncMappingKey">
+                <intensity value="0"/>
+                <split value="0"/>
+                <colorL r="0" g="0" b="0" a="0"/>
+            </key>
+            <key type="TransFuncMappingKey">
+                <intensity value="0.058823529411764705"/>
+                <split value="0"/>
+                <colorL r="255" g="0" b="0" a="22"/>
+            </key>
+            <key type="TransFuncMappingKey">
+                <intensity value="0.11764705882352941"/>
+                <split value="0"/>
+                <colorL r="255" g="95" b="0" a="3"/>
+            </key>
+            <key type="TransFuncMappingKey">
+                <intensity value="0.1764705882352941"/>
+                <split value="0"/>
+                <colorL r="255" g="191" b="0" a="0"/>
+            </key>
+        </Keys>
+    </TransFuncIntensity>
+</VoreenData>
