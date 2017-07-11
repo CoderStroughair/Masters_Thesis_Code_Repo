@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lab1_CS7057", "Lab1_CS7057\Lab1_CS7057.vcxproj", "{D96C787A-8E68-470B-90D6-B96D1208E597}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GPURaycast", "GPURaycast\GPURaycast.vcxproj", "{D96C787A-8E68-470B-90D6-B96D1208E597}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AB9182A7-43D9-4863-A31C-37B7DA1AD07F}"
 EndProject

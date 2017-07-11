@@ -1,0 +1,37 @@
+﻿  VoxelReader.cpp
+b:\masters_thesis\raycast_solution\lab1_cs7057\voxelreader.cpp(41): warning C4018: '<': signed/unsigned mismatch
+b:\masters_thesis\raycast_solution\lab1_cs7057\voxelreader.cpp(129): warning C4018: '<': signed/unsigned mismatch
+b:\masters_thesis\raycast_solution\lab1_cs7057\voxelreader.cpp(132): warning C4018: '<': signed/unsigned mismatch
+b:\masters_thesis\raycast_solution\lab1_cs7057\voxelreader.cpp(159): warning C4244: '+=': conversion from 'std::streamoff' to 'int', possible loss of data
+  VolumeDataset.cpp
+b:\masters_thesis\raycast_solution\lab1_cs7057\volumedataset.cpp(28): warning C4018: '<': signed/unsigned mismatch
+  main.cpp
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(591): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(595): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(942): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(954): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(966): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(1014): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(1031): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(1032): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(1033): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(1034): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(1039): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\main.cpp(42): warning C4244: 'initializing': conversion from 'const float' to 'int', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\main.cpp(202): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\main.cpp(208): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+  EulerCamera.cpp
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(591): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(595): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(942): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(954): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(966): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(1014): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(1031): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(1032): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(1033): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(1034): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+b:\masters_thesis\raycast_solution\lab1_cs7057\antons_maths_funcs.h(1039): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  Generating Code...
+  Lab1_CS7057.vcxproj -> B:\Masters_Thesis\Raycast_Solution\Debug\GPURaycast.exe
+  Lab1_CS7057.vcxproj -> B:\Masters_Thesis\Raycast_Solution\Debug\GPURaycast.pdb (Full PDB)

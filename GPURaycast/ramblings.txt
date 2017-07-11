@@ -1,0 +1,7 @@
+First Compute Shader:
+
+Shoots rays into the scene and samples the data, outputting a new 3D texture in which each point accessed contains a percentage of how visible that point is.
+
+Second Compute Shader:
+
+Takes a strip of points within the new texture, and interpolates all the empty values.
