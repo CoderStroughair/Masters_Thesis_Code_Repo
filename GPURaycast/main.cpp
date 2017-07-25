@@ -48,6 +48,7 @@ int currentTimestep = 0;
 
 GLuint overlayVAO, overlayID, transfuncShaderID, computeShaderID, inverseComputeShaderID, Compute3DShaderID, tex_output;
 int tex_w = width*3, tex_h = height*3;
+bool first = true;
 
 void init()
 {
@@ -75,13 +76,15 @@ void display()
 	static int number = 0;
 	static int average = 0;
 	clock_t initial = clock();
-	glUseProgram(Compute3DShaderID);
-	glBindImageTexture(0, tex_output, 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8);
-	int texp = glGetUniformLocation(Compute3DShaderID, "tex_output");
-	glUniform1i(texp, 0);
-	glDispatchCompute((GLuint)volume.xRes/4, (GLuint)volume.yRes/4, (GLuint)volume.zRes/4);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
+	if (first)
+	{
+		glUseProgram(Compute3DShaderID);
+		glBindImageTexture(0, volumeTexture3D->currTexture3D, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
+		glBindImageTexture(1, tex_output, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
+		glDispatchCompute((GLuint)volume.xRes / 4, (GLuint)volume.yRes / 4, (GLuint)volume.zRes / 4);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+		//first = false;
+	}
 	//Probably around here you're gonna need to start setting up your variables to go into the Raycasting.
 	glBindFramebuffer(GL_FRAMEBUFFER, fb.framebuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

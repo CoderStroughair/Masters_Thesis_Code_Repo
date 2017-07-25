@@ -1,22 +1,2 @@
-﻿  main.cpp
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(591): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(595): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(942): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(954): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(966): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(1014): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(1031): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(1032): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(1033): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(1034): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(1039): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\main.cpp(50): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\main.cpp(54): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\main.cpp(65): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\main.cpp(133): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\main.cpp(134): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\main.cpp(135): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\main.cpp(266): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\main.cpp(272): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-  GPURaycast.vcxproj -> B:\Masters_Thesis\Raycast_Solution\Debug\GPURaycast.exe
+﻿  GPURaycast.vcxproj -> B:\Masters_Thesis\Raycast_Solution\Debug\GPURaycast.exe
   GPURaycast.vcxproj -> B:\Masters_Thesis\Raycast_Solution\Debug\GPURaycast.pdb (Full PDB)

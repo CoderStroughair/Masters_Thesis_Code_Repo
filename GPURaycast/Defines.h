@@ -36,4 +36,20 @@
 						MESH AND TEXTURE VARIABLES
 ----------------------------------------------------------------------------*/
 
+
+/*----------------------------------------------------------------------------
+							TRANSFER FUNCTIONS
+----------------------------------------------------------------------------*/
+
+
+#define TRANS_CTKNEE "../transferfuncs/CT-Knee_spectrum_16_balance.tfi"
+#define TRANS_VISMALE "../transferfuncs/VisMale_spectrum_4_balance_1000.tfi"
+#define TRANS_BLUESMOKE "../transferfuncs/BlueSmoke.tfi"
+#define TRANS_NUCLEON "../transferfuncs/nucleon.tfi"
+#define TRANS_MRI_KNEE "../transferfuncs/MRIKnee.tfi"
+#define TRANS_MRI_KNEE_TRANS "../transferfuncs/MRIKneeTrans.tfi"
+#define TRANS_SUPERNOVA "../transferfuncs/supernova.tfi"
+#define TRANS_TEST "../transferfuncs/test.tfi"
+#define TRANS_TEST2 "../transferfuncs/test2.tfi"
+
 /*--------------------------------------------------------------------------*/

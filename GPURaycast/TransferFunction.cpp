@@ -27,7 +27,7 @@ void TransferFunction::LoadXML(const char *filename)
 	tinyxml2::XMLDocument doc;
 //	tinyxml2::XMLError r = doc.LoadFile("../transferfuncs/CT-Knee_spectrum_16_balance.tfi");
 //	tinyxml2::XMLError r = doc.LoadFile("../transferfuncs/VisMale_spectrum_4_balance_1000.tfi");
-	tinyxml2::XMLError r = doc.LoadFile("../transferfuncs/BlueSmoke.tfi");
+//	tinyxml2::XMLError r = doc.LoadFile("../transferfuncs/BlueSmoke.tfi");
 //	tinyxml2::XMLError r = doc.LoadFile("../transferfuncs/nucleon.tfi");
 //	tinyxml2::XMLError r = doc.LoadFile("../transferfuncs/MRIKnee.tfi");
 //	tinyxml2::XMLError r = doc.LoadFile("../transferfuncs/MRIKneeTrans.tfi");
@@ -35,6 +35,7 @@ void TransferFunction::LoadXML(const char *filename)
 //	tinyxml2::XMLError r = doc.LoadFile("../transferfuncs/test.tfi");
 //	tinyxml2::XMLError r = doc.LoadFile("../transferfuncs/test2.tfi");
 
+	tinyxml2::XMLError r = doc.LoadFile(filename);
 	if (r != tinyxml2::XML_NO_ERROR)
 	{
 		fprintf(stderr, "failed to open file");

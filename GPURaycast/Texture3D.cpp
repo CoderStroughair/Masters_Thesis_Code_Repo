@@ -1,9 +1,10 @@
 #include "Texture3D.h"
+#include "Defines.h"
 
 Texture3D::Texture3D(VolumeDataset &volume)
 {
 	currTexture3D = GenerateTexture(volume);
-	transferFunction.Init(" ", volume);
+	transferFunction.Init(TRANS_BLUESMOKE, volume);
 }
 
 void Texture3D::UpdateTexture(int currentTimestep, VolumeDataset &volume)

@@ -1,15 +1,22 @@
 #version 430
 layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
-layout (rgba32f, binding = 0) uniform image3D test3D;
+layout (r8, binding = 0) uniform image3D data;
+layout (r8, binding = 1) uniform image3D moved;
 
 void main()
 {
-	ivec3 dims = imageSize (test3D);
-	vec4 pixel = vec4 (0.0, 0.0, 0.0, 1.0);
+	ivec3 dims = imageSize(data);	
 	ivec3 pixel_coords = ivec3(gl_GlobalInvocationID.xyz);
+	vec4 pixel = imageLoad(data, pixel_coords);
+
+	float x = pixel.x;
+	x = x + 0.3;
+	if (x > 1.0)
+		x = x - 1.0;
+	x = gl_LocalInvocationID.x;
+	//x = x - 0.1;
+	pixel = vec4(x/4.0, 0.0, 0.0, 1.0);
 	
-	pixel = vec4(pixel_coords.x/dims.x, pixel_coords.y/dims.y, pixel_coords.z/dims.z, 1.0);
 	
-	
-	imageStore (test3D, pixel_coords, pixel);
+	imageStore (moved, pixel_coords, pixel);
 }
