@@ -52,7 +52,7 @@ public:
 	GLfloat yaw, pitch, roll;
 
 private:
-	glm::vec3 position, front, up, right;
+	glm::vec3 position, front, up, right, worldup;
 	glm::mat4 proj;
 	GLfloat sensitivity, degrees;
 

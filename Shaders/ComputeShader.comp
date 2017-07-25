@@ -1,5 +1,5 @@
 #version 430
-layout (local_size_x = 1, local_size_y = 1) in;
+layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 layout (rgba32f, binding = 0) uniform image2D img_output;
 
 void main () 
@@ -26,9 +26,24 @@ void main ()
 	float bsqmc = b * b - c;
 	float t = 10000.0;
 	// hit one or both sides
-	if (bsqmc >= 0.0) {
-		pixel = vec4 (0.4, 0.4, 1.0, 1.0);
+	
+	if (bsqmc > 0.2) 
+	{
+		pixel = vec4 (cos(2.0), 0.4, 1.0, 1.0);
 	}
+	else if (bsqmc > 0.1) 
+	{
+		pixel = vec4 (sin(4.0/sin(4.0)), 0.4, 1.0, 1.0);
+	}
+	else if(bsqmc > 0.001)
+	{
+		pixel = vec4(0.9, 0.01, 0.0, 1.0);
+	}
+	else
+	{
+		pixel = vec4(0.1, 0.1, 0.1, 1.0);
+	}
+		
 //stores the result in the texture
 	imageStore (img_output, pixel_coords, pixel);
 }

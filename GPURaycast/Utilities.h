@@ -6,38 +6,54 @@
 #include <GL/freeglut.h>
 
 #include "TransferFunction.h"
+#include "Texture3D.h"
 #include "EulerCamera.h"
 /*----------------------------------------------------------------------------
 								DEFINITIONS
 ----------------------------------------------------------------------------*/
 
-GLuint quadVAO();
+GLuint createOverlayQuad();
 GLuint BlankTexture(int tex_w, int tex_h);
 void DebugWorkGroups();
-void Raycast(GLuint currTexture3D, TransferFunction &transferFunction, GLuint shaderProgramID, EulerCamera &camera);
+void Raycast(TransferFunction transferFunction, GLuint currTexture3D, GLuint shaderProgramID, EulerCamera &camera);
 
 /*----------------------------------------------------------------------------
 								IMPLEMENTATIONS
 ----------------------------------------------------------------------------*/
 
-GLuint quadVAO() {
+GLuint createOverlayQuad() {
 	GLuint vao = 0, vbo = 0;
-	float verts[] = 
-	{ 
-		-1.0f, -1.0f, 0.0f, 0.0f,
-		-1.0f,  1.0f, 0.0f, 1.0f,
-		 1.0f, -1.0f, 1.0f, 0.0f,
-		 1.0f,  1.0f, 1.0f, 1.0f
+
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	float* verts;
+	verts = new float[16]
+	{
+		//positions		//textures
+		0.5f, -1.0f,	0.0f, 0.0f,	//Bottom Left
+		0.5f, -0.5f,	0.0f, 1.0f,	//Top Left
+		1.0f, -1.0f,	1.0f, 0.0f,	//Bottom Right
+		1.0f, -0.5f,	1.0f, 1.0f	//Top Right
 	};
+	//verts = new float[16]
+	//{
+	//	//positions		//textures
+	//	1.0f, -1.0f,	0.0f, 0.0f,	//Bottom Left
+	//	1.0f, -1.0f,	0.0f, 1.0f,	//Top Left
+	//	1.0f, -1.0f,	1.0f, 0.0f,	//Bottom Right
+	//	1.0f, -1.0f,	1.0f, 1.0f	//Top Right
+	//};
+
 
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, 16 * sizeof(float), verts, GL_STATIC_DRAW);
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
+
 	glEnableVertexAttribArray(0);
 	GLintptr stride = 4 * sizeof(float);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, NULL);
+
 	glEnableVertexAttribArray(1);
 	GLintptr offset = 2 * sizeof(float);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (GLvoid *)offset);
@@ -50,16 +66,33 @@ GLuint BlankTexture(int tex_w, int tex_h)
 	glGenTextures(1, &tex_output);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, tex_output);
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	// linear allows us to scale the window up retaining reasonable quality
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	// same internal format as compute shader input
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, tex_w, tex_h, 0, GL_RGBA, GL_FLOAT,
-		NULL);
-	// bind to image unit so can write to specific pixels from the shader
-	glBindImageTexture(0, tex_output, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, tex_w, tex_h, 0, GL_RGBA, GL_FLOAT, NULL);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	return tex_output;
+}
+
+GLuint BlankTexture3D(int tex_w, int tex_h, int tex_d)
+{
+	GLuint tex_output;
+	glGenTextures(1, &tex_output);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_3D, tex_output);
+
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	glTexImage2D(GL_TEXTURE_3D, 0, GL_RGBA32F, tex_w, tex_h, 0, GL_RGBA, GL_FLOAT, NULL);
+	glBindTexture(GL_TEXTURE_3D, 0);
+
 	return tex_output;
 }
 
@@ -83,7 +116,7 @@ void DebugWorkGroups()
 	printf("max computer shader invocations %i\n", work_grp_inv);
 }
 
-void Raycast(GLuint currTexture3D, TransferFunction &transferFunction, GLuint shaderProgramID, EulerCamera &camera)
+void Raycast(TransferFunction transferFunction, GLuint currTexture3D, GLuint shaderProgramID, EulerCamera &camera)
 {
 	glUseProgram(shaderProgramID);
 	int maxRaySteps = 1000;
@@ -92,8 +125,8 @@ void Raycast(GLuint currTexture3D, TransferFunction &transferFunction, GLuint sh
 	glm::vec3 lightPosition = glm::vec3(-0.0f, -5.0f, 5.0f);
 	glm::mat4 model_mat = glm::mat4(1.0f);
 
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgramID, "proj"), 1, GL_FALSE, glm::value_ptr(camera.getProj()));
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgramID, "view"), 1, GL_FALSE, glm::value_ptr(camera.getView()));
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgramID, "proj"), 1, GL_FALSE, &camera.getProj()[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgramID, "view"), 1, GL_FALSE, &camera.getView()[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgramID, "model"), 1, GL_FALSE, &model_mat[0][0]);
 
 	glUniform3f(glGetUniformLocation(shaderProgramID, "camPos"), camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
@@ -149,6 +182,5 @@ void Raycast(GLuint currTexture3D, TransferFunction &transferFunction, GLuint sh
 	glEnd();
 	glBindTexture(GL_TEXTURE_3D, 0);
 }
-
 
 #endif

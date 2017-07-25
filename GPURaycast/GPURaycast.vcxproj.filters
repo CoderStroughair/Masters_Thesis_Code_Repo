@@ -48,14 +48,14 @@
     <ClInclude Include="GLM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Framebuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="FragmentShader.frag">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="VertexShader.vert">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\Shaders\ComputeShader.comp">
       <Filter>Resource Files</Filter>
     </None>
@@ -66,6 +66,18 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\Shaders\TransFuncVertShader.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Shaders\FragmentShader.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Shaders\VertexShader.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Shaders\3DComputeshader.comp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Shaders\TransFuncTest.frag">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
@@ -89,6 +101,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TransferFunction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -18,6 +18,7 @@
 ----------------------------------------------------------------------------*/
 #define RAY_COMPUTE_SHADER			"../Shaders/ComputeShader.comp"
 #define INVERSE_COMPUTE_SHADER		"../Shaders/InverseComputeShader.comp"
+#define COMPUTE_3D_SHADER			"../Shaders/3DComputeShader.comp"
 
 #define VERTEX_SHADER				"../Shaders/VertexShader.vert"
 #define FRAGMENT_SHADER				"../Shaders/FragmentShader.frag"

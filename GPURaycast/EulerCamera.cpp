@@ -4,14 +4,18 @@ EulerCamera::EulerCamera(glm::vec3 pos, int screenWidth, int screenHeight)
 {
 	proj = glm::perspective(67.0f, ((float)screenWidth / (float)screenHeight), 0.1f, 1000.0f);
 	position = pos;
-	front = glm::vec3(0.0, 0.0, 0.0);
-	right = glm::vec3(0.0, 0.0, 0.0);
-	yaw = 0.0f;
+	front = glm::vec3(0.0, 0.0, 1.0);
+	right = glm::vec3(1.0, 0.0, 0.0);
+	yaw = 90.0;
 	pitch = 0.0f;
 	roll = 0.0f;
 	degrees = 0;
-	sensitivity = 2.0f;
-	changeFront();
+	sensitivity = 2.0f;	
+	up = glm::vec3(0.0, 1.0, 0.0);
+	worldup = up;
+	//changeFront(0.0, 1.0, 0.0);
+	//changeFront();
+	//movForward(-1000);
 }
 
 void EulerCamera::setSensitivity(GLfloat value) { sensitivity = value; }
@@ -97,5 +101,6 @@ void EulerCamera::changeFront()
 	f.z = sin(ryaw) * cos(rpitch);
 	//get direction to look at and normalise it to make it a unit vector
 	front = glm::normalize(f);
-	up = glm::vec3(0.0, 1.0, 0.0);
+	right = glm::normalize(glm::cross(front, worldup));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+	up = glm::normalize(glm::cross(right, front));
 }

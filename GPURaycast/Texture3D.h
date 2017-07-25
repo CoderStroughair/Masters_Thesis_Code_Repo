@@ -14,10 +14,10 @@ public:
 	int textureSize;
 
 	GLuint GenerateTexture(VolumeDataset &volume);
+	GLuint GenerateBlankTexture(VolumeDataset volume);
 
 	Texture3D() {};
 	Texture3D(VolumeDataset &volume);
 	void UpdateTexture(int currentTimestep, VolumeDataset &volume);
 };
-
 #endif

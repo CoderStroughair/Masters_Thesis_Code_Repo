@@ -20,8 +20,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Antons_maths_funcs.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="EulerCamera.h" />
+    <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GLM.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Texture3D.h" />
@@ -32,6 +34,7 @@
     <ClInclude Include="VoxelReader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="EulerCamera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Texture3D.cpp" />
@@ -41,12 +44,14 @@
     <ClCompile Include="VoxelReader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Shaders\3DComputeshader.comp" />
     <None Include="..\Shaders\ComputeShader.comp" />
+    <None Include="..\Shaders\FragmentShader.frag" />
     <None Include="..\Shaders\InverseComputeShader.comp" />
     <None Include="..\Shaders\TransFuncFragShader.frag" />
+    <None Include="..\Shaders\TransFuncTest.frag" />
     <None Include="..\Shaders\TransFuncVertShader.vert" />
-    <None Include="FragmentShader.frag" />
-    <None Include="VertexShader.vert" />
+    <None Include="..\Shaders\VertexShader.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D96C787A-8E68-470B-90D6-B96D1208E597}</ProjectGuid>

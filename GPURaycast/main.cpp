@@ -14,6 +14,8 @@
 
 #include "VolumeDataset.h"
 #include "Texture3D.h"
+#include "Framebuffer.h"
+#include <cstdarg>
 
 using namespace std;
 
@@ -21,11 +23,12 @@ const float width = 900, height = 900;
 /*----------------------------------------------------------------------------
 						MESH AND TEXTURE VARIABLES
 ----------------------------------------------------------------------------*/
-
+Framebuffer fb;
 /*----------------------------------------------------------------------------
 							CAMERA VARIABLES
 ----------------------------------------------------------------------------*/
 EulerCamera camera;
+int yawInput = 0, pitchInput = 0, rollInput = 0, forwardInput = 0, rightInput = 0;;
 /*----------------------------------------------------------------------------
 								SHADER VARIABLES
 ----------------------------------------------------------------------------*/
@@ -34,7 +37,7 @@ EulerCamera camera;
 							OTHER VARIABLES
 ----------------------------------------------------------------------------*/
 VolumeDataset volume;
-Texture3D* texture3D;
+Texture3D* volumeTexture3D, blankTexture3D;
 clock_t oldTime;
 int currentTimestep = 0;
 /*----------------------------------------------------------------------------
@@ -43,57 +46,69 @@ int currentTimestep = 0;
 
 /*--------------------------------------------------------------------------*/
 
-GLuint quad_vao, graphicPipelineID, transfuncShaderID, computeShaderID, inverseComputeShaderID, tex_output;
-int tex_w = width, tex_h = height;
+GLuint overlayVAO, overlayID, transfuncShaderID, computeShaderID, inverseComputeShaderID, Compute3DShaderID, tex_output;
+int tex_w = width*3, tex_h = height*3;
 
 void init()
 {
+	fb.init(width, height);
 	Shader factory;
 	computeShaderID = factory.CompileComputeShader(RAY_COMPUTE_SHADER);
 	inverseComputeShaderID = factory.CompileComputeShader(INVERSE_COMPUTE_SHADER);
-	quad_vao = quadVAO();
-	graphicPipelineID = factory.CompileShader(VERTEX_SHADER, FRAGMENT_SHADER);
+	Compute3DShaderID = factory.CompileComputeShader(COMPUTE_3D_SHADER);
+	overlayVAO = createOverlayQuad();
+	overlayID = factory.CompileShader(VERTEX_SHADER, FRAGMENT_SHADER);
 	transfuncShaderID = factory.CompileShader(TRANS_VERTEX_SHADER, TRANS_FRAGMENT_SHADER);
-	tex_output = BlankTexture(tex_w, tex_h);
 	DebugWorkGroups();
 	glEnable(GL_DEPTH_TEST);
 
-	camera = EulerCamera(glm::vec3(0.0, 0.0, 0.0), width, height);
+	camera = EulerCamera(glm::vec3(0.0, 0.0, -10.0), width, height);
 	volume.Init();
-	texture3D = new Texture3D(volume);
+	volumeTexture3D = new Texture3D(volume);
+	tex_output = volumeTexture3D->GenerateBlankTexture(volume);
 
-	printf(KNEE_HEADER);
 }
 
 void display()
 {
-
-	glUseProgram(computeShaderID);
-	glDispatchCompute((GLuint)tex_w, (GLuint)tex_h, 1);
-
-	// prevent sampling befor all writes to image are done
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
-	glUseProgram(inverseComputeShaderID);
-	glDispatchCompute((GLuint)tex_w, (GLuint)tex_h, 1);
-
-	// prevent sampling befor all writes to image are done
+	static int total = 0;
+	static int number = 0;
+	static int average = 0;
+	clock_t initial = clock();
+	glUseProgram(Compute3DShaderID);
+	glBindImageTexture(0, tex_output, 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8);
+	int texp = glGetUniformLocation(Compute3DShaderID, "tex_output");
+	glUniform1i(texp, 0);
+	glDispatchCompute((GLuint)volume.xRes/4, (GLuint)volume.yRes/4, (GLuint)volume.zRes/4);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 	//Probably around here you're gonna need to start setting up your variables to go into the Raycasting.
+	glBindFramebuffer(GL_FRAMEBUFFER, fb.framebuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
 
+	Raycast(volumeTexture3D->transferFunction, tex_output, transfuncShaderID, camera);
 
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
 
-	Raycast(texture3D->currTexture3D, texture3D->transferFunction, transfuncShaderID, camera);
+	Raycast(volumeTexture3D->transferFunction, volumeTexture3D->currTexture3D, transfuncShaderID, camera);
 
-	//glUseProgram(graphicPipelineID);
-	//glBindVertexArray(quad_vao);
-	//glActiveTexture(GL_TEXTURE0);
-	//glBindTexture(GL_TEXTURE_2D, tex_output);
-	//glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glUseProgram(overlayID);
+	glBindVertexArray(overlayVAO);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, fb.tex);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 	glutSwapBuffers();
+	total += clock() - initial;
+	number++;
+	if (average != total / number)
+	{
+		average = total / number;
+		cout << average << endl;
+	}
 }
 
 void updateScene() 
@@ -112,9 +127,13 @@ void updateScene()
 
 			oldTime = currentTime;
 
-			texture3D->UpdateTexture(currentTimestep, volume);
+			volumeTexture3D->UpdateTexture(currentTimestep, volume);
 		}
 	}
+	camera.changeFront(pitchInput, yawInput, 0.0);
+	camera.movForward(forwardInput);
+	camera.movRight(rightInput);
+
 	glutPostRedisplay();
 }
 
@@ -128,15 +147,19 @@ void keypress(unsigned char key, int x, int y) {
 		break;
 	case('w'):
 	case('W'):
+		forwardInput = 1;
 		break;
 	case('s'):
 	case('S'):
+		forwardInput = -1;
 		break;
 	case('a'):
 	case('A'):
+		rightInput = -1;
 		break;
 	case('d'):
 	case('D'):
+		rightInput = 1;
 		break;
 	case('q'):
 	case('Q'):
@@ -154,11 +177,13 @@ void keypressUp(unsigned char key, int x, int y){
 	case('W'):
 	case('s'):
 	case('S'):
+		forwardInput = 0;
 		break;
 	case('a'):
 	case('A'):
 	case('d'):
 	case('D'):
+		rightInput = 0;
 		break;
 	case('q'):
 	case('Q'):
@@ -177,12 +202,16 @@ void specialKeypress(int key, int x, int y){
 	case (GLUT_KEY_SHIFT_R):
 		break;
 	case (GLUT_KEY_LEFT):
+		yawInput = -1;
 		break;
 	case (GLUT_KEY_RIGHT):
+		yawInput = 1;
 		break;
 	case (GLUT_KEY_UP):
+		pitchInput = 1;
 		break;
 	case (GLUT_KEY_DOWN):
+		pitchInput = -1;
 		break;
 	case(GLUT_KEY_F2):
 		break;
@@ -203,9 +232,11 @@ void specialKeypressUp(int key, int x, int y){
 		break;
 	case (GLUT_KEY_LEFT):
 	case (GLUT_KEY_RIGHT):
+		yawInput = 0;
 		break;
 	case (GLUT_KEY_UP):
 	case (GLUT_KEY_DOWN):
+		pitchInput = 0;
 		break;
 	case(GLUT_KEY_F1):
 		break;
@@ -214,6 +245,9 @@ void specialKeypressUp(int key, int x, int y){
 		break;
 	case(GLUT_KEY_F4):
 	case(GLUT_KEY_F5):
+		cout << camera.getFront().x << " " << camera.getFront().y << " " << camera.getFront().z << " " << endl;
+		cout << camera.getPosition().x << " " << camera.getPosition().y << " " << camera.getPosition().z << " " << endl;
+		cout << camera.yaw << endl;
 		break;
 	}
 }

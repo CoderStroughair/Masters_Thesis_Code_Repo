@@ -4,6 +4,13 @@
 #include "Antons_maths_funcs.h"
 #include <GL/freeglut.h>
 
+#define DBOUT( s )            \
+{                             \
+   std::ostringstream os_;    \
+   os_ << s;                   \
+   OutputDebugString( os_.str().c_str() );  \
+}
+
 /**
 Requirements:
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -24,12 +31,12 @@ public:
 	GLuint CompileComputeShader(char* compute);
 
 private:
-	void AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType);
+	void AddShader(GLuint &ShaderProgram, const char* pShaderText, GLenum ShaderType);
 	char* readShaderSource(const char* shaderFile);
 	bool checkCompileError(GLuint shader, GLenum ShaderType);
 	bool checkLinkError(GLuint shader);
 	bool checkValidationErrors(GLuint program);
-
+	static void CheckStatus(GLuint obj);
 };
 
 char* Shader::readShaderSource(const char* shaderFile) 
@@ -55,18 +62,19 @@ char* Shader::readShaderSource(const char* shaderFile)
 	return buf;
 }
 
-void Shader::AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType)
+void Shader::AddShader(GLuint &shaderProgram, const char* pShaderText, GLenum shaderType)
 {
-	GLuint ShaderObj = glCreateShader(ShaderType);
-	if (ShaderObj == 0) {
-		fprintf(stderr, "Error creating shader type %d\n", ShaderType);
+	GLuint shaderObj = glCreateShader(shaderType);
+	if (shaderObj == 0) {
+		fprintf(stderr, "Error creating shader type %d\n", shaderType);
 		exit(1);
 	}
 	const char* pShaderSource = readShaderSource(pShaderText);
-	glShaderSource(ShaderObj, 1, (const GLchar**)&pShaderSource, NULL);
-	glCompileShader(ShaderObj);
-	checkCompileError(ShaderObj, ShaderType);
-	glAttachShader(ShaderProgram, ShaderObj);
+	glShaderSource(shaderObj, 1, (const GLchar**)&pShaderSource, NULL);
+	glCompileShader(shaderObj);
+	//CheckStatus(shaderObj);
+	checkCompileError(shaderObj, shaderType);
+	glAttachShader(shaderProgram, shaderObj);
 }
 
 GLuint Shader::CompileShader(char* vertex, char* fragment) 
@@ -106,11 +114,13 @@ GLuint Shader::CompileComputeShader(char* compute)
 bool Shader::checkCompileError(GLuint shader, GLenum ShaderType)
 {
 	GLint params = -1;
-	GLchar ErrorLog[1024] = { 0 };
+	GLchar ErrorLog[512] = { 0 };
+	GLint size = 0;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &params);
 	if (GL_TRUE != params) {
-		glGetProgramInfoLog(shader, sizeof(ErrorLog), NULL, ErrorLog);
-		fprintf(stderr, "Error compiling shader type %d: '%s'\n", ShaderType, ErrorLog);
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &params);
+		glGetShaderInfoLog(shader, 512, &size, ErrorLog);
+		fprintf(stderr, "Error compiling shader number %i of type %d: '%s'\n", shader, ShaderType, ErrorLog);
 		exit(1);
 	}
 	return true;
@@ -139,4 +149,17 @@ bool Shader::checkValidationErrors(GLuint program) {
 		exit(1);
 	}
 	return true;
+}
+
+void Shader::CheckStatus(GLuint obj)
+{
+	GLint status = GL_FALSE;
+	if (glIsShader(obj)) glGetShaderiv(obj, GL_COMPILE_STATUS, &status);
+	if (glIsProgram(obj)) glGetProgramiv(obj, GL_LINK_STATUS, &status);
+	if (status == GL_TRUE) return;
+	GLchar log[1 << 15] = { 0 };
+	if (glIsShader(obj)) glGetShaderInfoLog(obj, sizeof(log), NULL, log);
+	if (glIsProgram(obj)) glGetProgramInfoLog(obj, sizeof(log), NULL, log);
+	std::cerr << log << std::endl;
+	exit(EXIT_FAILURE);
 }
