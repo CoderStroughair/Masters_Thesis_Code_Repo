@@ -3,6 +3,16 @@ layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
 layout (r8, binding = 0) uniform image3D data;
 layout (r8, binding = 1) uniform image3D moved;
 
+/*
+
+uniform sampler1D transferFunc;
+uniform vec3 camPos;
+
+uniform int maxRaySteps;
+uniform float rayStepSize;
+uniform float gradientStepSize;
+*/
+
 void main()
 {
 	ivec3 dims = imageSize(data);	
@@ -23,3 +33,39 @@ void main()
 	
 	imageStore (moved, pixel_coords, pixel);
 }
+
+/*
+
+void main()
+{
+	int i = 0;
+	float totalVisibility = 0;
+	ivec3 dims = imageSize(data);	
+	ivec3 position = ivec3(gl_GlobalInvocationID.xyz);
+	vec4 pixel = imageLoad(data, pixel_coords);
+	float[1000] opacities;
+	vec3[1000] texCoords;
+
+	for (i = 0; i < maxRaySteps; i++)
+	{
+		float opacity = 0.0f;
+		vec3 texCoord = (position + 1.0f)/2.0f;
+		float index = imageLoad(data, texCoord).x;
+
+		opacity = vec4(texture(transferFunc, index)).w; 
+		opacities[i] = opacity;
+		totalVisibility += opacity;
+
+		position = position + (direction * rayStepSize);
+
+		if (abs(position.x) > 1.0f || abs(position.y) > 1.0f || abs(position.z) > 1.0f || absorption >= 1.0f)
+			break;
+	}
+	position = ivec3(gl_GlobalInvocationID.xyz);
+	for (int j = 0; j <= i; i++)
+	{
+		imageStore(moved, texCoord[j], vec4(opacities[j], 0.0, 0.0, 1.0));
+	}
+}
+
+*/

@@ -1,25 +1,39 @@
-﻿  main.cpp
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(591): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(595): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(942): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(954): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(966): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(1014): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(1031): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(1032): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(1033): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(1034): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\antons_maths_funcs.h(1039): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\main.cpp(50): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\main.cpp(55): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\main.cpp(66): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\main.cpp(67): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\main.cpp(113): warning C4018: '<': signed/unsigned mismatch
-b:\masters_thesis\raycast_solution\gpuraycast\main.cpp(141): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\main.cpp(142): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\main.cpp(143): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\main.cpp(145): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\main.cpp(304): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
-b:\masters_thesis\raycast_solution\gpuraycast\main.cpp(310): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-  GPURaycast.vcxproj -> B:\Masters_Thesis\Raycast_Solution\Debug\GPURaycast.exe
-  GPURaycast.vcxproj -> B:\Masters_Thesis\Raycast_Solution\Debug\GPURaycast.pdb (Full PDB)
+﻿  VoxelReader.cpp
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\voxelreader.cpp(41): warning C4018: '<': signed/unsigned mismatch
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\voxelreader.cpp(129): warning C4018: '<': signed/unsigned mismatch
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\voxelreader.cpp(132): warning C4018: '<': signed/unsigned mismatch
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\voxelreader.cpp(159): warning C4244: '+=': conversion from 'std::streamoff' to 'int', possible loss of data
+  VolumeDataset.cpp
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\volumedataset.cpp(28): warning C4018: '<': signed/unsigned mismatch
+  TransferFunction.cpp
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\transferfunction.cpp(51): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  tinyxml2.cpp
+  Texture3D.cpp
+  main.cpp
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\antons_maths_funcs.h(591): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\antons_maths_funcs.h(595): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\antons_maths_funcs.h(942): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\antons_maths_funcs.h(954): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\antons_maths_funcs.h(966): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\antons_maths_funcs.h(1014): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\antons_maths_funcs.h(1031): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\antons_maths_funcs.h(1032): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\antons_maths_funcs.h(1033): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\antons_maths_funcs.h(1034): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\antons_maths_funcs.h(1039): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\main.cpp(50): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\main.cpp(55): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\main.cpp(66): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\main.cpp(67): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\main.cpp(113): warning C4018: '<': signed/unsigned mismatch
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\main.cpp(141): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\main.cpp(142): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\main.cpp(143): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\main.cpp(145): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\main.cpp(304): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+\\tholos.itserv.scss.tcd.ie\pgrad\stroughm\desktop\github\masters_thesis_code_repo\gpuraycast\main.cpp(310): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+  EulerCamera.cpp
+  GLM: perspective function taking degrees as a parameter is deprecated. #define GLM_FORCE_RADIANS before including GLM headers to remove this message.
+  Generating Code...
+  GPURaycast.vcxproj -> \\tholos.itserv.scss.tcd.ie\Pgrad\stroughm\Desktop\GitHub\Masters_Thesis_Code_Repo\Debug\GPURaycast.exe
+  GPURaycast.vcxproj -> \\tholos.itserv.scss.tcd.ie\Pgrad\stroughm\Desktop\GitHub\Masters_Thesis_Code_Repo\Debug\GPURaycast.pdb (Full PDB)
