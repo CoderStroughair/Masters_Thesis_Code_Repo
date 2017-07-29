@@ -13,9 +13,12 @@ EulerCamera::EulerCamera(glm::vec3 pos, int screenWidth, int screenHeight)
 	sensitivity = 2.0f;	
 	up = glm::vec3(0.0, 1.0, 0.0);
 	worldup = up;
-	//changeFront(0.0, 1.0, 0.0);
-	//changeFront();
-	//movForward(-1000);
+
+	yawInput = 0;
+	pitchInput = 0;
+	rollInput = 0;
+	forwardInput = 0;
+	rightInput = 0;
 }
 
 void EulerCamera::setSensitivity(GLfloat value) { sensitivity = value; }
@@ -38,7 +41,7 @@ void EulerCamera::changeFront(GLfloat pi, GLfloat ya, GLfloat ro) {
 	else if (yaw < 0)
 		yaw = 360;
 
-	changeFront();
+	resetFront();
 
 }
 
@@ -88,7 +91,37 @@ void EulerCamera::jump(bool& jumping) {
 		return;
 }
 
-void EulerCamera::changeFront()
+void EulerCamera::orbitAround(glm::vec3 point, GLfloat pi, GLfloat ya)
+{
+	static float totalPi = 0;
+	static float totalYa = 0;
+	totalPi += pi;
+	totalYa += ya;
+
+	if (totalPi > 89)
+		totalPi = 89;
+	if (totalPi < -89)
+		totalPi = -89;
+	if (totalYa > 360)
+		totalYa = 0;
+	else if (totalYa < 0)
+		totalYa = 360;
+
+	glm::vec3 direction = point - position;
+	float displacement = glm::length(direction);
+
+	direction.x = cos(glm::radians(totalYa)) * cos(glm::radians(totalPi));
+	direction.y = sin(glm::radians(totalPi));
+	direction.z = sin(glm::radians(totalYa)) * cos(glm::radians(totalPi));
+
+	direction = glm::normalize(direction);
+	direction *= displacement;
+	position = point + direction;
+
+	front = glm::normalize(point - position);
+}
+
+void EulerCamera::resetFront()
 {
 	GLfloat rpitch = glm::radians(pitch);
 	GLfloat ryaw = glm::radians(yaw);

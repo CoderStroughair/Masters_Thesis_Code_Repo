@@ -9,14 +9,17 @@ void main()
 	ivec3 pixel_coords = ivec3(gl_GlobalInvocationID.xyz);
 	vec4 pixel = imageLoad(data, pixel_coords);
 
-	float x = pixel.x;
-	x = x + 0.3;
-	if (x > 1.0)
-		x = x - 1.0;
-	x = gl_LocalInvocationID.x;
-	//x = x - 0.1;
-	pixel = vec4(x/4.0, 0.0, 0.0, 1.0);
-	
+	//sets up the circle that will be raycasted
+	ivec3 sphere_c = ivec3 (dims.x/2, dims.y/2, dims.z/2);
+	float sphere_r = 100.0;
+
+	float length = distance(sphere_c, pixel_coords);
+	if (length <= sphere_r/2)
+		pixel = vec4(0.2, 0.0, 0.0, 1.0);
+	else if (length <= sphere_r/2)
+		pixel = vec4(3.0/length, 0.0, 0.0, 1.0);
+	else
+		pixel = vec4(1.0/length, 0.0, 0.0, 1.0);
 	
 	imageStore (moved, pixel_coords, pixel);
 }

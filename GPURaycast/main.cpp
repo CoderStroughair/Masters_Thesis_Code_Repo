@@ -27,8 +27,8 @@ Framebuffer fb;
 /*----------------------------------------------------------------------------
 							CAMERA VARIABLES
 ----------------------------------------------------------------------------*/
-EulerCamera camera;
-int yawInput = 0, pitchInput = 0, rollInput = 0, forwardInput = 0, rightInput = 0;;
+EulerCamera dataVolumeCamera, visualVolumeCamera;
+int rotateVisualZ = 0, rotateVisualY = 0;
 /*----------------------------------------------------------------------------
 								SHADER VARIABLES
 ----------------------------------------------------------------------------*/
@@ -37,7 +37,7 @@ int yawInput = 0, pitchInput = 0, rollInput = 0, forwardInput = 0, rightInput = 
 							OTHER VARIABLES
 ----------------------------------------------------------------------------*/
 VolumeDataset volume;
-Texture3D* volumeTexture3D, blankTexture3D;
+Texture3D* volumeContainer3D, blankTexture3D;
 clock_t oldTime;
 int currentTimestep = 0;
 /*----------------------------------------------------------------------------
@@ -63,24 +63,25 @@ void init()
 	DebugWorkGroups();
 	glEnable(GL_DEPTH_TEST);
 
-	camera = EulerCamera(glm::vec3(0.0, 0.0, -10.0), width, height);
+	dataVolumeCamera = EulerCamera(glm::vec3(0.0, 0.0, -10.0), width, height);
+	visualVolumeCamera = EulerCamera(glm::vec3(0.0, 0.0, -3.0), width, height);
 	volume.Init();
-	volumeTexture3D = new Texture3D(volume);
-	tex_output = volumeTexture3D->GenerateBlankTexture(volume);
+	volumeContainer3D = new Texture3D(volume);
+	tex_output = volumeContainer3D->GenerateBlankTexture(volume);
 
 }
 
 void display()
 {
-	static int total = 0;
-	static int number = 0;
+	static vector<int> numberBacklog;
+	int total = 0;
 	static int average = 0;
 	clock_t initial = clock();
 	if (first)
 	{
 		glUseProgram(Compute3DShaderID);
-		glBindImageTexture(0, volumeTexture3D->currTexture3D, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
-		glBindImageTexture(1, tex_output, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
+		glBindImageTexture(0, volumeContainer3D->volumeTexture3D, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
+		glBindImageTexture(1, volumeContainer3D->visualTexture3D, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
 		glDispatchCompute((GLuint)volume.xRes / 4, (GLuint)volume.yRes / 4, (GLuint)volume.zRes / 4);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 		//first = false;
@@ -90,13 +91,13 @@ void display()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
-	Raycast(volumeTexture3D->transferFunction, tex_output, transfuncShaderID, camera);
+	Raycast(volumeContainer3D->visualTransferFunction, volumeContainer3D->visualTexture3D, transfuncShaderID, visualVolumeCamera);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
-	Raycast(volumeTexture3D->transferFunction, volumeTexture3D->currTexture3D, transfuncShaderID, camera);
+	Raycast(volumeContainer3D->volumeTransferFunction, volumeContainer3D->volumeTexture3D, transfuncShaderID, dataVolumeCamera);
 
 	glUseProgram(overlayID);
 	glBindVertexArray(overlayVAO);
@@ -105,11 +106,15 @@ void display()
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 	glutSwapBuffers();
-	total += clock() - initial;
-	number++;
-	if (average != total / number)
+
+	numberBacklog.push_back(clock() - initial);
+	if (numberBacklog.size() > 20)
+		numberBacklog.erase(numberBacklog.begin());
+	for (int i = 0; i < numberBacklog.size(); i++)
+		total += numberBacklog[i];
+	if (average != total / numberBacklog.size())
 	{
-		average = total / number;
+		average = total / numberBacklog.size();
 		cout << average << endl;
 	}
 }
@@ -130,12 +135,15 @@ void updateScene()
 
 			oldTime = currentTime;
 
-			volumeTexture3D->UpdateTexture(currentTimestep, volume);
+			volumeContainer3D->UpdateTexture(currentTimestep, volume);
 		}
 	}
-	camera.changeFront(pitchInput, yawInput, 0.0);
-	camera.movForward(forwardInput);
-	camera.movRight(rightInput);
+	dataVolumeCamera.changeFront(dataVolumeCamera.pitchInput, dataVolumeCamera.yawInput, 0.0);
+	dataVolumeCamera.movForward(dataVolumeCamera.forwardInput);
+	dataVolumeCamera.movRight(dataVolumeCamera.rightInput);
+
+	visualVolumeCamera.orbitAround(glm::vec3(0.0, 0.0, 0.0), rotateVisualZ, rotateVisualY);
+
 
 	glutPostRedisplay();
 }
@@ -150,25 +158,41 @@ void keypress(unsigned char key, int x, int y) {
 		break;
 	case('w'):
 	case('W'):
-		forwardInput = 1;
+		dataVolumeCamera.forwardInput = 1;
 		break;
 	case('s'):
 	case('S'):
-		forwardInput = -1;
+		dataVolumeCamera.forwardInput = -1;
 		break;
 	case('a'):
 	case('A'):
-		rightInput = -1;
+		dataVolumeCamera.rightInput = -1;
 		break;
 	case('d'):
 	case('D'):
-		rightInput = 1;
+		dataVolumeCamera.rightInput = 1;
 		break;
 	case('q'):
 	case('Q'):
 		break;
 	case('e'):
 	case('E'):
+		break;
+	case('i'):
+	case('I'):
+		rotateVisualZ = -1;
+		break;
+	case('k'):
+	case('K'):
+		rotateVisualZ = 1;
+		break;
+	case('j'):
+	case('J'):
+		rotateVisualY = -1;
+		break;
+	case('l'):
+	case('L'):
+		rotateVisualY = 1;
 		break;
 	}
 }
@@ -177,21 +201,33 @@ void keypressUp(unsigned char key, int x, int y){
 	switch (key)
 	{
 	case('w'):
-	case('W'):
 	case('s'):
+	case('W'):
 	case('S'):
-		forwardInput = 0;
+		dataVolumeCamera.forwardInput = 0;
 		break;
 	case('a'):
-	case('A'):
 	case('d'):
+	case('A'):
 	case('D'):
-		rightInput = 0;
+		dataVolumeCamera.rightInput = 0;
 		break;
 	case('q'):
-	case('Q'):
 	case('e'):
+	case('Q'):
 	case('E'):
+		break;
+	case('i'):
+	case('I'):
+	case('k'):
+	case('K'):
+		rotateVisualZ = 0;
+		break;
+	case('j'):
+	case('J'):
+	case('l'):
+	case('L'):
+		rotateVisualY = 0;
 		break;
 	case(' '):
 		break;
@@ -205,16 +241,16 @@ void specialKeypress(int key, int x, int y){
 	case (GLUT_KEY_SHIFT_R):
 		break;
 	case (GLUT_KEY_LEFT):
-		yawInput = -1;
+		dataVolumeCamera.yawInput = -1;
 		break;
 	case (GLUT_KEY_RIGHT):
-		yawInput = 1;
+		dataVolumeCamera.yawInput = 1;
 		break;
 	case (GLUT_KEY_UP):
-		pitchInput = 1;
+		dataVolumeCamera.pitchInput = 1;
 		break;
 	case (GLUT_KEY_DOWN):
-		pitchInput = -1;
+		dataVolumeCamera.pitchInput = -1;
 		break;
 	case(GLUT_KEY_F2):
 		break;
@@ -235,11 +271,11 @@ void specialKeypressUp(int key, int x, int y){
 		break;
 	case (GLUT_KEY_LEFT):
 	case (GLUT_KEY_RIGHT):
-		yawInput = 0;
+		dataVolumeCamera.yawInput = 0;
 		break;
 	case (GLUT_KEY_UP):
 	case (GLUT_KEY_DOWN):
-		pitchInput = 0;
+		dataVolumeCamera.pitchInput = 0;
 		break;
 	case(GLUT_KEY_F1):
 		break;
@@ -248,9 +284,8 @@ void specialKeypressUp(int key, int x, int y){
 		break;
 	case(GLUT_KEY_F4):
 	case(GLUT_KEY_F5):
-		cout << camera.getFront().x << " " << camera.getFront().y << " " << camera.getFront().z << " " << endl;
-		cout << camera.getPosition().x << " " << camera.getPosition().y << " " << camera.getPosition().z << " " << endl;
-		cout << camera.yaw << endl;
+		cout << dataVolumeCamera.getFront().x << " " << dataVolumeCamera.getFront().y << " " << dataVolumeCamera.getFront().z << " " << endl;
+		cout << dataVolumeCamera.getPosition().x << " " << dataVolumeCamera.getPosition().y << " " << dataVolumeCamera.getPosition().z << " " << endl;
 		break;
 	}
 }

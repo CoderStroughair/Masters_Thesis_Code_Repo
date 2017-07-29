@@ -9,12 +9,14 @@
 class Texture3D
 {
 public:
-	TransferFunction transferFunction;
-	GLuint currTexture3D;
+	TransferFunction volumeTransferFunction;
+	TransferFunction visualTransferFunction;
+	GLuint volumeTexture3D;
+	GLuint visualTexture3D;
 	int textureSize;
 
 	GLuint GenerateTexture(VolumeDataset &volume);
-	GLuint GenerateBlankTexture(VolumeDataset volume);
+	GLuint GenerateBlankTexture(VolumeDataset &volume);
 
 	Texture3D() {};
 	Texture3D(VolumeDataset &volume);

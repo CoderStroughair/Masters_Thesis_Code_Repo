@@ -51,5 +51,6 @@
 #define TRANS_SUPERNOVA "../transferfuncs/supernova.tfi"
 #define TRANS_TEST "../transferfuncs/test.tfi"
 #define TRANS_TEST2 "../transferfuncs/test2.tfi"
+#define TRANS_VISIBILITY "../transferfuncs/visibility.tfi"
 
 /*--------------------------------------------------------------------------*/

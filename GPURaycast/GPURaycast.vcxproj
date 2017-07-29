@@ -20,7 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Antons_maths_funcs.h" />
-    <ClInclude Include="Camera.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="EulerCamera.h" />
     <ClInclude Include="Framebuffer.h" />
@@ -34,7 +33,6 @@
     <ClInclude Include="VoxelReader.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="EulerCamera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Texture3D.cpp" />
@@ -52,6 +50,7 @@
     <None Include="..\Shaders\TransFuncTest.frag" />
     <None Include="..\Shaders\TransFuncVertShader.vert" />
     <None Include="..\Shaders\VertexShader.vert" />
+    <None Include="..\Shaders\VisibilityCalculator.comp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D96C787A-8E68-470B-90D6-B96D1208E597}</ProjectGuid>
