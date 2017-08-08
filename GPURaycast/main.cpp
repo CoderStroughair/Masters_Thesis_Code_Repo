@@ -23,12 +23,13 @@ const float width = 900, height = 900;
 /*----------------------------------------------------------------------------
 						MESH AND TEXTURE VARIABLES
 ----------------------------------------------------------------------------*/
-Framebuffer fb;
+Framebuffer fbLaplace;
 /*----------------------------------------------------------------------------
 							CAMERA VARIABLES
 ----------------------------------------------------------------------------*/
-EulerCamera dataVolumeCamera, visualVolumeCamera;
+EulerCamera dataVolumeCamera, overlayCamera;
 int rotateVisualZ = 0, rotateVisualY = 0;
+int rotateDataZ = 0, rotateDataY = 0;
 /*----------------------------------------------------------------------------
 								SHADER VARIABLES
 ----------------------------------------------------------------------------*/
@@ -37,34 +38,35 @@ int rotateVisualZ = 0, rotateVisualY = 0;
 							OTHER VARIABLES
 ----------------------------------------------------------------------------*/
 VolumeDataset volume;
-Texture3D* volumeContainer3D, blankTexture3D;
+Texture3D* volumeContainer3D;
 clock_t oldTime;
 int currentTimestep = 0;
+bool laplacianFinished = false;
 /*----------------------------------------------------------------------------
 						FUNCTION DEFINITIONS
 ----------------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------------*/
 
-GLuint overlayVAO, overlayID, transfuncShaderID, computeShaderID, inverseComputeShaderID, Compute3DShaderID, tex_output;
+GLuint overlayVAO, overlayID, transfuncShaderID, computeShaderID, inverseComputeShaderID, LaplaceShaderID, GaussianShaderID, tex_output;
 int tex_w = width*3, tex_h = height*3;
-bool first = true;
 
 void init()
 {
-	fb.init(width, height);
+	fbLaplace.init(width, height);
 	Shader factory;
 	computeShaderID = factory.CompileComputeShader(RAY_COMPUTE_SHADER);
 	inverseComputeShaderID = factory.CompileComputeShader(INVERSE_COMPUTE_SHADER);
-	Compute3DShaderID = factory.CompileComputeShader(COMPUTE_3D_SHADER);
-	overlayVAO = createOverlayQuad();
+	LaplaceShaderID = factory.CompileComputeShader(LAPLACIAN_COMPUTE_SHADER);
+	GaussianShaderID = factory.CompileComputeShader(GAUSSIAN_COMPUTE_SHADER);
+	overlayVAO = createOverlayQuad(3);
 	overlayID = factory.CompileShader(VERTEX_SHADER, FRAGMENT_SHADER);
 	transfuncShaderID = factory.CompileShader(TRANS_VERTEX_SHADER, TRANS_FRAGMENT_SHADER);
 	DebugWorkGroups();
 	glEnable(GL_DEPTH_TEST);
 
-	dataVolumeCamera = EulerCamera(glm::vec3(0.0, 0.0, -10.0), width, height);
-	visualVolumeCamera = EulerCamera(glm::vec3(0.0, 0.0, -3.0), width, height);
+	dataVolumeCamera = EulerCamera(glm::vec3(0.0, 0.0, -4.0), width, height);
+	overlayCamera = EulerCamera(glm::vec3(0.0, 0.0, -3.0), width, height);
 	volume.Init();
 	volumeContainer3D = new Texture3D(volume);
 	tex_output = volumeContainer3D->GenerateBlankTexture(volume);
@@ -77,21 +79,20 @@ void display()
 	int total = 0;
 	static int average = 0;
 	clock_t initial = clock();
-	if (first)
+
+	if (laplacianFinished != true)
 	{
-		glUseProgram(Compute3DShaderID);
-		glBindImageTexture(0, volumeContainer3D->volumeTexture3D, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
-		glBindImageTexture(1, volumeContainer3D->visualTexture3D, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
-		glDispatchCompute((GLuint)volume.xRes / 4, (GLuint)volume.yRes / 4, (GLuint)volume.zRes / 4);
-		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-		//first = false;
+		LaunchComputeShader(GaussianShaderID, volumeContainer3D->volumeTexture3D, volumeContainer3D->smoothedTexture3D, volume);
+		LaunchComputeShader(LaplaceShaderID, volumeContainer3D->smoothedTexture3D, volumeContainer3D->computedTexture3D, volume);
+		laplacianFinished = true;
 	}
+
 	//Probably around here you're gonna need to start setting up your variables to go into the Raycasting.
-	glBindFramebuffer(GL_FRAMEBUFFER, fb.framebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbLaplace.framebuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
-	Raycast(volumeContainer3D->visualTransferFunction, volumeContainer3D->visualTexture3D, transfuncShaderID, visualVolumeCamera);
+	Raycast(volumeContainer3D->computedTransferFunction, volumeContainer3D->computedTexture3D, transfuncShaderID, overlayCamera);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -102,7 +103,7 @@ void display()
 	glUseProgram(overlayID);
 	glBindVertexArray(overlayVAO);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, fb.tex);
+	glBindTexture(GL_TEXTURE_2D, fbLaplace.tex);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 	glutSwapBuffers();
@@ -138,11 +139,9 @@ void updateScene()
 			volumeContainer3D->UpdateTexture(currentTimestep, volume);
 		}
 	}
-	dataVolumeCamera.changeFront(dataVolumeCamera.pitchInput, dataVolumeCamera.yawInput, 0.0);
-	dataVolumeCamera.movForward(dataVolumeCamera.forwardInput);
-	dataVolumeCamera.movRight(dataVolumeCamera.rightInput);
+	dataVolumeCamera.orbitAround(glm::vec3(0.0, 0.0, 0.0), rotateDataZ, rotateDataY);
 
-	visualVolumeCamera.orbitAround(glm::vec3(0.0, 0.0, 0.0), rotateVisualZ, rotateVisualY);
+	overlayCamera.orbitAround(glm::vec3(0.0, 0.0, 0.0), rotateVisualZ, rotateVisualY);
 
 
 	glutPostRedisplay();
@@ -158,19 +157,19 @@ void keypress(unsigned char key, int x, int y) {
 		break;
 	case('w'):
 	case('W'):
-		dataVolumeCamera.forwardInput = 1;
+		rotateDataZ = -1;
 		break;
 	case('s'):
 	case('S'):
-		dataVolumeCamera.forwardInput = -1;
+		rotateDataZ = 1;
 		break;
 	case('a'):
 	case('A'):
-		dataVolumeCamera.rightInput = -1;
+		rotateDataY = -1;
 		break;
 	case('d'):
 	case('D'):
-		dataVolumeCamera.rightInput = 1;
+		rotateDataY = 1;
 		break;
 	case('q'):
 	case('Q'):
@@ -204,13 +203,13 @@ void keypressUp(unsigned char key, int x, int y){
 	case('s'):
 	case('W'):
 	case('S'):
-		dataVolumeCamera.forwardInput = 0;
+		rotateDataZ = 0;
 		break;
 	case('a'):
 	case('d'):
 	case('A'):
 	case('D'):
-		dataVolumeCamera.rightInput = 0;
+		rotateDataY = 0;
 		break;
 	case('q'):
 	case('e'):

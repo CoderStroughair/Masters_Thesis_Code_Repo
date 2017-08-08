@@ -54,6 +54,7 @@ private:
 	GLuint cam_buffer;
 	glm::mat4 rot = glm::mat4();
 	GLfloat yaw, pitch, roll;
+	GLfloat rotateYaw, rotatePitch;
 	glm::vec3 position, front, up, right, worldup;
 	glm::mat4 proj;
 	GLfloat sensitivity, degrees;

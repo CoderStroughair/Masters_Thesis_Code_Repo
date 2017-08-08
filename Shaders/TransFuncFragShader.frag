@@ -61,7 +61,7 @@ void main()
 
 	float absorption = 0.0f;
 	float opacity;
-	
+
 	for(int i=0; i<maxRaySteps; i++)
 	{
 		color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -90,10 +90,8 @@ void main()
 		//Uncomment to colour white all non important pixels, ie, those with no opaque voxels contributing to them.
 			if (absorption < 1.0f)
 				finalColor += vec4(1.0f, 1.0f, 1.0f, 1.0f) * (1.0f - absorption);
-
 			break;
 		}
 	}
-
 	FragColor = finalColor;
 }

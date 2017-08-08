@@ -12,30 +12,73 @@
 								DEFINITIONS
 ----------------------------------------------------------------------------*/
 
-GLuint createOverlayQuad();
+GLuint createOverlayQuad(int location);
 GLuint BlankTexture(int tex_w, int tex_h);
 void DebugWorkGroups();
 void Raycast(TransferFunction transferFunction, GLuint currTexture3D, GLuint shaderProgramID, EulerCamera &camera);
+void LaunchComputeShader(GLuint shaderProgramID, GLuint initialTexture3D, GLuint destinationTexture3D, VolumeDataset volume);
+
+int maxRaySteps = 1000;
+float rayStepSize = 0.005f;
+float gradientStepSize = 0.005f;
+glm::vec3 lightPosition = glm::vec3(-0.0f, -5.0f, 5.0f);
+glm::mat4 model_mat = glm::mat4(1.0f);
 
 /*----------------------------------------------------------------------------
 								IMPLEMENTATIONS
 ----------------------------------------------------------------------------*/
 
-GLuint createOverlayQuad() {
+GLuint createOverlayQuad(int location) {
 	GLuint vao = 0, vbo = 0;
 
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
 	float* verts;
-	verts = new float[16]
+	switch (location)
 	{
-		//positions		//textures
-		0.5f, -1.0f,	0.0f, 0.0f,	//Bottom Left
-		0.5f, -0.5f,	0.0f, 1.0f,	//Top Left
-		1.0f, -1.0f,	1.0f, 0.0f,	//Bottom Right
-		1.0f, -0.5f,	1.0f, 1.0f	//Top Right
-	};
+	case 0:	//Bottom left of screen
+		verts = new float[16]
+		{
+			//positions		//textures
+			-1.0f, -1.0f,	0.0f, 0.0f,	//Bottom Left
+			-1.0f, -0.5f,	0.0f, 1.0f,	//Top Left
+			-0.5f, -1.0f,	1.0f, 0.0f,	//Bottom Right
+			-0.5f, -0.5f,	1.0f, 1.0f	//Top Right
+		};
+		break;
+	case 1:	//Bottom Right of screen
+		verts = new float[16]
+		{
+			//positions		//textures
+			0.5f, -1.0f,	0.0f, 0.0f,	//Bottom Left
+			0.5f, -0.5f,	0.0f, 1.0f,	//Top Left
+			1.0f, -1.0f,	1.0f, 0.0f,	//Bottom Right
+			1.0f, -0.5f,	1.0f, 1.0f	//Top Right
+		};
+		break;
+	case 2:
+		verts = new float[16]
+		{
+			//positions		//textures
+			-1.0f, 0.5f,	0.0f, 0.0f,	//Bottom Left
+			-1.0f, 1.0f,	0.0f, 1.0f,	//Top Left
+			-0.5f, 0.5f,	1.0f, 0.0f,	//Bottom Right
+			-0.5f, 1.0f,	1.0f, 1.0f	//Top Right
+		};
+		break;
+	case 3:
+	default:
+		verts = new float[16]
+		{
+			//positions		//textures
+			0.5f, 0.5f,	0.0f, 0.0f,	//Bottom Left
+			0.5f, 1.0f,	0.0f, 1.0f,	//Top Left
+			1.0f, 0.5f,	1.0f, 0.0f,	//Bottom Right
+			1.0f, 1.0f,	1.0f, 1.0f	//Top Right
+		};
+		break;
+	}
 	//verts = new float[16]
 	//{
 	//	//positions		//textures
@@ -78,24 +121,6 @@ GLuint BlankTexture(int tex_w, int tex_h)
 	return tex_output;
 }
 
-GLuint BlankTexture3D(int tex_w, int tex_h, int tex_d)
-{
-	GLuint tex_output;
-	glGenTextures(1, &tex_output);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_3D, tex_output);
-
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-	glTexImage2D(GL_TEXTURE_3D, 0, GL_RGBA32F, tex_w, tex_h, 0, GL_RGBA, GL_FLOAT, NULL);
-	glBindTexture(GL_TEXTURE_3D, 0);
-
-	return tex_output;
-}
-
 void DebugWorkGroups()
 {
 	int work_grp_size[3], work_grp_inv;
@@ -119,11 +144,11 @@ void DebugWorkGroups()
 void Raycast(TransferFunction transferFunction, GLuint currTexture3D, GLuint shaderProgramID, EulerCamera &camera)
 {
 	glUseProgram(shaderProgramID);
-	int maxRaySteps = 1000;
-	float rayStepSize = 0.005f;
-	float gradientStepSize = 0.005f;
-	glm::vec3 lightPosition = glm::vec3(-0.0f, -5.0f, 5.0f);
-	glm::mat4 model_mat = glm::mat4(1.0f);
+	//int maxRaySteps = 1000;
+	//float rayStepSize = 0.005f;
+	//float gradientStepSize = 0.005f;
+	//glm::vec3 lightPosition = glm::vec3(-0.0f, -5.0f, 5.0f);
+	//glm::mat4 model_mat = glm::mat4(1.0f);
 
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgramID, "proj"), 1, GL_FALSE, &camera.getProj()[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgramID, "view"), 1, GL_FALSE, &camera.getView()[0][0]);
@@ -181,6 +206,18 @@ void Raycast(TransferFunction transferFunction, GLuint currTexture3D, GLuint sha
 	glVertex3f(-1.0f, 1.0f, -1.0f);
 	glEnd();
 	glBindTexture(GL_TEXTURE_3D, 0);
+}
+
+void LaunchComputeShader(GLuint shaderProgramID, GLuint initialTexture3D, GLuint destinationTexture3D, VolumeDataset volume)
+{
+	glUseProgram(shaderProgramID);
+	glBindImageTexture(0, initialTexture3D, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
+	glBindImageTexture(1, destinationTexture3D, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
+
+	GLint localWorkGroupSize[3] = { 0 };
+	glGetProgramiv(shaderProgramID, GL_COMPUTE_WORK_GROUP_SIZE, localWorkGroupSize);
+	glDispatchCompute((GLuint)volume.xRes / localWorkGroupSize[0], (GLuint)volume.yRes / localWorkGroupSize[1], (GLuint)volume.zRes / localWorkGroupSize[2]);
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
 #endif

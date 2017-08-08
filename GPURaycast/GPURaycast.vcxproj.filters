@@ -74,10 +74,13 @@
     <None Include="..\Shaders\3DComputeshader.comp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\Shaders\TransFuncTest.frag">
+    <None Include="..\Shaders\VisibilityCalculator.comp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\Shaders\VisibilityCalculator.comp">
+    <None Include="..\Shaders\LaplacianShader.comp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Shaders\GaussianShader.comp">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

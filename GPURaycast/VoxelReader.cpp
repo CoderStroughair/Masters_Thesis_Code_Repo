@@ -12,8 +12,8 @@ void VoxelReader::LoadVolume(std::string folderPath, std::string headerFile, Vol
 //	folderPath = "../../Samples/Nucleon/";
 //	headerFile = folderPath + "Nucleon.mhd";	
 	
-	folderPath = "../Samples/Bonsai/";
-	headerFile = folderPath + "Bonsai.mhd";
+//	folderPath = "../Samples/Bonsai/";
+//	headerFile = folderPath + "Bonsai.mhd";
 
 	ReadMHD(folderPath, headerFile, properties);
 	ReadRaw(properties);
