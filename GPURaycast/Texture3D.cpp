@@ -6,10 +6,11 @@ Texture3D::Texture3D(VolumeDataset &volume)
 	volumeTexture3D = GenerateTexture(volume);
 	volumeTransferFunction.Init(TRANS_CTKNEE, volume);
 
-	computedTexture3D = GenerateBlankTexture(volume);
-	computedTransferFunction.Init(TRANS_LAPLACIAN, volume);
+	laplacianTexture3D = GenerateBlankTexture(volume);
+	computedTransferFunction.Init(TRANS_VISIBILITY, volume);
 
 	smoothedTexture3D = GenerateBlankTexture(volume);
+	visibilityTexture3D = GenerateBlankTexture(volume);
 }
 
 void Texture3D::UpdateTexture(int currentTimestep, VolumeDataset &volume)

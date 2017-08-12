@@ -22,6 +22,7 @@
 #define COMPUTE_3D_SHADER			"../Shaders/3DComputeShader.comp"
 #define LAPLACIAN_COMPUTE_SHADER	"../Shaders/LaplacianShader.comp"
 #define GAUSSIAN_COMPUTE_SHADER		"../Shaders/GaussianShader.comp"
+#define VISIBILITY_COMPUTE_SHADER	"../Shaders/VisibilityCalculator.comp"
 
 #define VERTEX_SHADER				"../Shaders/VertexShader.vert"
 #define FRAGMENT_SHADER				"../Shaders/FragmentShader.frag"

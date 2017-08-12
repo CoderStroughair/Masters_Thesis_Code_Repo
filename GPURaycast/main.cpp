@@ -49,6 +49,7 @@ bool laplacianFinished = false;
 /*--------------------------------------------------------------------------*/
 
 GLuint overlayVAO, overlayID, transfuncShaderID, computeShaderID, inverseComputeShaderID, LaplaceShaderID, GaussianShaderID, tex_output;
+GLuint visibilityShaderID;
 int tex_w = width*3, tex_h = height*3;
 
 void init()
@@ -59,6 +60,7 @@ void init()
 	inverseComputeShaderID = factory.CompileComputeShader(INVERSE_COMPUTE_SHADER);
 	LaplaceShaderID = factory.CompileComputeShader(LAPLACIAN_COMPUTE_SHADER);
 	GaussianShaderID = factory.CompileComputeShader(GAUSSIAN_COMPUTE_SHADER);
+	visibilityShaderID = factory.CompileComputeShader(VISIBILITY_COMPUTE_SHADER);
 	overlayVAO = createOverlayQuad(3);
 	overlayID = factory.CompileShader(VERTEX_SHADER, FRAGMENT_SHADER);
 	transfuncShaderID = factory.CompileShader(TRANS_VERTEX_SHADER, TRANS_FRAGMENT_SHADER);
@@ -83,16 +85,18 @@ void display()
 	if (laplacianFinished != true)
 	{
 		LaunchComputeShader(GaussianShaderID, volumeContainer3D->volumeTexture3D, volumeContainer3D->smoothedTexture3D, volume);
-		LaunchComputeShader(LaplaceShaderID, volumeContainer3D->smoothedTexture3D, volumeContainer3D->computedTexture3D, volume);
+		LaunchComputeShader(LaplaceShaderID, volumeContainer3D->smoothedTexture3D, volumeContainer3D->laplacianTexture3D, volume);
 		laplacianFinished = true;
 	}
+
+	LaunchVisibilityComputeShader(volumeContainer3D->volumeTransferFunction, visibilityShaderID, volumeContainer3D->volumeTexture3D, volumeContainer3D->visibilityTexture3D, volume, dataVolumeCamera);
 
 	//Probably around here you're gonna need to start setting up your variables to go into the Raycasting.
 	glBindFramebuffer(GL_FRAMEBUFFER, fbLaplace.framebuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
-	Raycast(volumeContainer3D->computedTransferFunction, volumeContainer3D->computedTexture3D, transfuncShaderID, overlayCamera);
+	Raycast(volumeContainer3D->computedTransferFunction, volumeContainer3D->visibilityTexture3D, transfuncShaderID, overlayCamera);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

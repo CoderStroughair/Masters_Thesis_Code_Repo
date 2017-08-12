@@ -12,8 +12,9 @@ public:
 	TransferFunction volumeTransferFunction;
 	TransferFunction computedTransferFunction;
 	GLuint volumeTexture3D;
-	GLuint computedTexture3D;
+	GLuint laplacianTexture3D;
 	GLuint smoothedTexture3D;
+	GLuint visibilityTexture3D;
 	int textureSize;
 
 	GLuint GenerateTexture(VolumeDataset &volume);

@@ -1,25 +1,64 @@
 #version 430
-layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
-layout (r8, binding = 0) uniform image3D data;
-layout (r8, binding = 1) uniform image3D moved;
+layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+layout(r8, binding = 0) uniform image3D visibilityTexture;
+
+uniform sampler3D volume;
+uniform sampler1D transferFunc;
+uniform vec3 camPos;
+
+uniform int maxRaySteps;
+uniform float rayStepSize;
+
+
+//This function takes the position from the Compute Shader and converts into World Space where the
+//object is centered on (0,0,0)
+vec3 convertToWorld(vec3 textureCoords)
+{
+	vec3 dims = imageSize(visibilityTexture);
+
+	float x = (float(textureCoords.x * 2 - dims.x)/dims.x);
+	float y = (float(textureCoords.y * 2 - dims.y)/dims.y);
+	float z = (float(textureCoords.z * 2 - dims.z)/dims.z);
+
+	return vec3(x,y,z);
+}
+
+//This function takes the position of a ray in world space and converts it into texture space
+//so as to allow access to the correct voxel position. Textures are accessed by values between 0 and 1, so the value of all dimensions is set to 1
+vec3 convertToTexture(vec3 worldCoords)
+{
+	vec3 dims = imageSize(visibilityTexture);
+
+	float x = ((float(worldCoords.x) + 1)/2);
+	float y = ((float(worldCoords.y) + 1)/2);
+	float z = ((float(worldCoords.z) + 1)/2);
+
+	return vec3(x,y,z);
+}
+
+//This function takes in the position of the ray, converts to texture space coordinates and outputs
+//the opacity associated with that position
+float checkOpacity(vec3 rayPosition)
+{
+	vec3 textureCoord = convertToTexture(rayPosition);
+	float index = texture(volume, textureCoord).x;
+	return texture(transferFunc, index).w;
+}
 
 void main()
 {
-	ivec3 dims = imageSize(data);	
-	ivec3 pixel_coords = ivec3(gl_GlobalInvocationID.xyz);
-	vec4 pixel = imageLoad(data, pixel_coords);
+	vec3 position = convertToWorld(vec3(gl_GlobalInvocationID.xyz));
+	vec3 direction = camPos - position;
 
-	//sets up the circle that will be raycasted
-	ivec3 sphere_c = ivec3 (dims.x/2, dims.y/2, dims.z/2);
-	float sphere_r = 100.0;
+	float currentOpacity = checkOpacity(position);
+	position = position + (direction * rayStepSize);
 
-	float length = distance(sphere_c, pixel_coords);
-	if (length <= sphere_r/2)
-		pixel = vec4(0.2, 0.0, 0.0, 1.0);
-	else if (length <= sphere_r/2)
-		pixel = vec4(3.0/length, 0.0, 0.0, 1.0);
-	else
-		pixel = vec4(1.0/length, 0.0, 0.0, 1.0);
-	
-	imageStore (moved, pixel_coords, pixel);
+	for (int i = 1; i < maxRaySteps; i++)
+	{
+		currentOpacity -= checkOpacity(position);
+		position = position + (direction * rayStepSize);
+		if (currentOpacity <= 0 || abs(position.x) > 1.0f || abs(position.y) > 1.0f || abs(position.z) > 1.0f)
+			break;
+	}
+	imageStore(visibilityTexture, ivec3(gl_GlobalInvocationID.xyz), vec4(currentOpacity, 0.0, 0.0, 1.0));
 }

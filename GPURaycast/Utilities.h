@@ -17,6 +17,7 @@ GLuint BlankTexture(int tex_w, int tex_h);
 void DebugWorkGroups();
 void Raycast(TransferFunction transferFunction, GLuint currTexture3D, GLuint shaderProgramID, EulerCamera &camera);
 void LaunchComputeShader(GLuint shaderProgramID, GLuint initialTexture3D, GLuint destinationTexture3D, VolumeDataset volume);
+void LaunchVisibilityComputeShader(TransferFunction transferFunction, GLuint shaderProgramID, GLuint dataTexture, GLuint visibilityTexture, VolumeDataset volume, EulerCamera &camera);
 
 int maxRaySteps = 1000;
 float rayStepSize = 0.005f;
@@ -144,11 +145,6 @@ void DebugWorkGroups()
 void Raycast(TransferFunction transferFunction, GLuint currTexture3D, GLuint shaderProgramID, EulerCamera &camera)
 {
 	glUseProgram(shaderProgramID);
-	//int maxRaySteps = 1000;
-	//float rayStepSize = 0.005f;
-	//float gradientStepSize = 0.005f;
-	//glm::vec3 lightPosition = glm::vec3(-0.0f, -5.0f, 5.0f);
-	//glm::mat4 model_mat = glm::mat4(1.0f);
 
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgramID, "proj"), 1, GL_FALSE, &camera.getProj()[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgramID, "view"), 1, GL_FALSE, &camera.getView()[0][0]);
@@ -220,4 +216,26 @@ void LaunchComputeShader(GLuint shaderProgramID, GLuint initialTexture3D, GLuint
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
+void LaunchVisibilityComputeShader(TransferFunction transferFunction, GLuint shaderProgramID, GLuint dataTexture, GLuint visibilityTexture, VolumeDataset volume, EulerCamera &camera)
+{
+	glUseProgram(shaderProgramID);
+	glBindImageTexture(0, visibilityTexture, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
+
+	glUniform3f(glGetUniformLocation(shaderProgramID, "camPos"), camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
+	glUniform1i(glGetUniformLocation(shaderProgramID, "maxRaySteps"), maxRaySteps);
+	glUniform1f(glGetUniformLocation(shaderProgramID, "rayStepSize"), rayStepSize);
+
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(glGetUniformLocation(shaderProgramID, "volume"), 0);
+	glBindTexture(GL_TEXTURE_3D, dataTexture);
+
+	glActiveTexture(GL_TEXTURE1);
+	glUniform1i(glGetUniformLocation(shaderProgramID, "transferFunc"), 1);
+	glBindTexture(GL_TEXTURE_1D, transferFunction.tfTexture);
+
+	GLint localWorkGroupSize[3] = { 0 };
+	glGetProgramiv(shaderProgramID, GL_COMPUTE_WORK_GROUP_SIZE, localWorkGroupSize);
+	glDispatchCompute((GLuint)volume.xRes / localWorkGroupSize[0], (GLuint)volume.yRes / localWorkGroupSize[1], (GLuint)volume.zRes / localWorkGroupSize[2]);
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
 #endif
