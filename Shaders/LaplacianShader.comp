@@ -42,5 +42,5 @@ void main()
 			}
 		}
 	}
-	imageStore(laplacian, ivec3(gl_GlobalInvocationID), vec4(total, 0.0, 0.0, 1.0));
+	imageStore(laplacian, ivec3(gl_GlobalInvocationID), vec4(total*10, 0.0, 0.0, 1.0));
 }

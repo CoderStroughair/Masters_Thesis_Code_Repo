@@ -32,9 +32,20 @@
 /*----------------------------------------------------------------------------
 							VOLUME DATA PATHS
 ----------------------------------------------------------------------------*/
-#define	KNEE_PATH					"../Samples/CTknee/"
-#define	KNEE_HEADER					"CTknee.mhd"
+#define BONSAI_PATH					"../Samples/Bonsai/"
+#define BONSAI_HEADER				"../Samples/Bonsai/Bonsai.mhd"
 
+#define HEAD_PATH					"../Samples/CThead/"
+#define	HEAD_HEADER					"../Samples/CThead/CThead.mhd"
+
+#define	KNEE_PATH					"../Samples/CTknee/"
+#define	KNEE_HEADER					"../Samples/CTknee/CTknee.mhd"
+
+#define NUCLEON_PATH				"../Samples/Nucleon/"
+#define NUCLEON_HEADER				"../Samples/Nucleon/nucleon.mhd"
+
+#define TOOTH_PATH					"../Samples/Tooth/"
+#define TOOTH_HEADER				"../Samples/Tooth/Tooth_A.mhd"
 
 /*----------------------------------------------------------------------------
 						MESH AND TEXTURE VARIABLES
@@ -56,8 +67,8 @@
 #define TRANS_TEST2				"../transferfuncs/test2.tfi"
 #define TRANS_VISIBILITY		"../transferfuncs/visibility.tfi"
 #define TRANS_LAPLACIAN			"../transferfuncs/laplacian.tfi"
+#define TRANS_TOOTH				"../Samples/Tooth/tooth.tfi"
 
 /*--------------------------------------------------------------------------*/
-
 
 #endif

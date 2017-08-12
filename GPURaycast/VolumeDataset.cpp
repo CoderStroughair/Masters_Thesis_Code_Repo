@@ -1,10 +1,11 @@
 #include "VolumeDataset.h"
+#include "Defines.h"
 
 // Initializes volume by calling voxel reader and copying in values from header
 void VolumeDataset::Init()
 {
 	VolumeProperties properties;
-	voxelReader.LoadVolume(std::string(), std::string(), properties);
+	voxelReader.LoadVolume(KNEE_PATH, KNEE_HEADER, properties);
 
 	memblock3D = properties.bufferAddress;
 	timesteps = properties.timesteps;

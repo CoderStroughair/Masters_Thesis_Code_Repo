@@ -13,7 +13,7 @@
 #include "Utilities.h"
 
 #include "VolumeDataset.h"
-#include "Texture3D.h"
+#include "VolumeTexture.h"
 #include "Framebuffer.h"
 #include <cstdarg>
 
@@ -23,7 +23,7 @@ const float width = 900, height = 900;
 /*----------------------------------------------------------------------------
 						MESH AND TEXTURE VARIABLES
 ----------------------------------------------------------------------------*/
-Framebuffer fbLaplace;
+Framebuffer fbVisibility, fbVolume;
 /*----------------------------------------------------------------------------
 							CAMERA VARIABLES
 ----------------------------------------------------------------------------*/
@@ -38,40 +38,43 @@ int rotateDataZ = 0, rotateDataY = 0;
 							OTHER VARIABLES
 ----------------------------------------------------------------------------*/
 VolumeDataset volume;
-Texture3D* volumeContainer3D;
+VolumeTexture* volumeContainer3D;
 clock_t oldTime;
 int currentTimestep = 0;
 bool laplacianFinished = false;
+
+bool renderLaplace = false;
 /*----------------------------------------------------------------------------
 						FUNCTION DEFINITIONS
 ----------------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------------*/
 
-GLuint overlayVAO, overlayID, transfuncShaderID, computeShaderID, inverseComputeShaderID, LaplaceShaderID, GaussianShaderID, tex_output;
+GLuint visibilityVAO, volumeVAO, overlayID, transfuncShaderID, computeShaderID, inverseComputeShaderID, LaplaceShaderID, GaussianShaderID;
 GLuint visibilityShaderID;
 int tex_w = width*3, tex_h = height*3;
 
 void init()
 {
-	fbLaplace.init(width, height);
+	fbVisibility.init(width, height);
+	fbVolume.init(width, height);
 	Shader factory;
 	computeShaderID = factory.CompileComputeShader(RAY_COMPUTE_SHADER);
 	inverseComputeShaderID = factory.CompileComputeShader(INVERSE_COMPUTE_SHADER);
 	LaplaceShaderID = factory.CompileComputeShader(LAPLACIAN_COMPUTE_SHADER);
 	GaussianShaderID = factory.CompileComputeShader(GAUSSIAN_COMPUTE_SHADER);
 	visibilityShaderID = factory.CompileComputeShader(VISIBILITY_COMPUTE_SHADER);
-	overlayVAO = createOverlayQuad(3);
+	volumeVAO = createOverlayQuad(5);
+	visibilityVAO = createOverlayQuad(4);
 	overlayID = factory.CompileShader(VERTEX_SHADER, FRAGMENT_SHADER);
 	transfuncShaderID = factory.CompileShader(TRANS_VERTEX_SHADER, TRANS_FRAGMENT_SHADER);
 	DebugWorkGroups();
 	glEnable(GL_DEPTH_TEST);
 
-	dataVolumeCamera = EulerCamera(glm::vec3(0.0, 0.0, -4.0), width, height);
-	overlayCamera = EulerCamera(glm::vec3(0.0, 0.0, -3.0), width, height);
+	dataVolumeCamera = EulerCamera(glm::vec3(0.0, 0.0, -5.0), width/2, height);
+	overlayCamera = EulerCamera(glm::vec3(0.0, 0.0, -5.0), width/2, height);
 	volume.Init();
-	volumeContainer3D = new Texture3D(volume);
-	tex_output = volumeContainer3D->GenerateBlankTexture(volume);
+	volumeContainer3D = new VolumeTexture(volume);
 
 }
 
@@ -84,30 +87,43 @@ void display()
 
 	if (laplacianFinished != true)
 	{
-		LaunchComputeShader(GaussianShaderID, volumeContainer3D->volumeTexture3D, volumeContainer3D->smoothedTexture3D, volume);
-		LaunchComputeShader(LaplaceShaderID, volumeContainer3D->smoothedTexture3D, volumeContainer3D->laplacianTexture3D, volume);
+		LaunchComputeShader(GaussianShaderID, volumeContainer3D->dataTexture, volumeContainer3D->smoothedTexture, volume);
+		LaunchComputeShader(LaplaceShaderID, volumeContainer3D->smoothedTexture, volumeContainer3D->laplacianTexture, volume);
 		laplacianFinished = true;
 	}
 
-	LaunchVisibilityComputeShader(volumeContainer3D->volumeTransferFunction, visibilityShaderID, volumeContainer3D->volumeTexture3D, volumeContainer3D->visibilityTexture3D, volume, dataVolumeCamera);
+	LaunchVisibilityComputeShader(volumeContainer3D, visibilityShaderID, dataVolumeCamera, volume);
 
 	//Probably around here you're gonna need to start setting up your variables to go into the Raycasting.
-	glBindFramebuffer(GL_FRAMEBUFFER, fbLaplace.framebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbVisibility.framebuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
-	Raycast(volumeContainer3D->computedTransferFunction, volumeContainer3D->visibilityTexture3D, transfuncShaderID, overlayCamera);
+	if(renderLaplace)
+		Raycast(volumeContainer3D->visibilityTF, volumeContainer3D->laplacianTexture, transfuncShaderID, overlayCamera);
+	else	
+		Raycast(volumeContainer3D->visibilityTF, volumeContainer3D->visibilityTexture, transfuncShaderID, overlayCamera);
+
+
+	glBindFramebuffer(GL_FRAMEBUFFER, fbVolume.framebuffer);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+
+	Raycast(volumeContainer3D->dataTF, volumeContainer3D->dataTexture, transfuncShaderID, dataVolumeCamera);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
-	Raycast(volumeContainer3D->volumeTransferFunction, volumeContainer3D->volumeTexture3D, transfuncShaderID, dataVolumeCamera);
-
 	glUseProgram(overlayID);
-	glBindVertexArray(overlayVAO);
+	glBindVertexArray(visibilityVAO);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, fbLaplace.tex);
+	glBindTexture(GL_TEXTURE_2D, fbVisibility.tex);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	glBindVertexArray(volumeVAO);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, fbVolume.tex);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 	glutSwapBuffers();
@@ -233,6 +249,7 @@ void keypressUp(unsigned char key, int x, int y){
 		rotateVisualY = 0;
 		break;
 	case(' '):
+		renderLaplace = !renderLaplace;
 		break;
 	}
 }

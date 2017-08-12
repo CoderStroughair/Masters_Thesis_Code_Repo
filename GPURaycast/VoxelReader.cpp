@@ -3,18 +3,6 @@
 // At the moment file is specified within function but in future will use parameter. 
 void VoxelReader::LoadVolume(std::string folderPath, std::string headerFile, VolumeProperties &properties)
 {
-	folderPath = "../Samples/CTknee/";
-	headerFile = folderPath + "CTknee.mhd";
-
-//	folderPath = "../../Samples/CThead/";
-//	headerFile = folderPath + "CThead.mhd";	
-	
-//	folderPath = "../../Samples/Nucleon/";
-//	headerFile = folderPath + "Nucleon.mhd";	
-	
-//	folderPath = "../Samples/Bonsai/";
-//	headerFile = folderPath + "Bonsai.mhd";
-
 	ReadMHD(folderPath, headerFile, properties);
 	ReadRaw(properties);
 }

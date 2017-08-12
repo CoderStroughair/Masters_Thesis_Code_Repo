@@ -6,7 +6,7 @@
 #include <GL/freeglut.h>
 
 #include "TransferFunction.h"
-#include "Texture3D.h"
+#include "VolumeTexture.h"
 #include "EulerCamera.h"
 /*----------------------------------------------------------------------------
 								DEFINITIONS
@@ -17,7 +17,7 @@ GLuint BlankTexture(int tex_w, int tex_h);
 void DebugWorkGroups();
 void Raycast(TransferFunction transferFunction, GLuint currTexture3D, GLuint shaderProgramID, EulerCamera &camera);
 void LaunchComputeShader(GLuint shaderProgramID, GLuint initialTexture3D, GLuint destinationTexture3D, VolumeDataset volume);
-void LaunchVisibilityComputeShader(TransferFunction transferFunction, GLuint shaderProgramID, GLuint dataTexture, GLuint visibilityTexture, VolumeDataset volume, EulerCamera &camera);
+void LaunchVisibilityComputeShader(VolumeTexture* container, GLuint shaderProgramID, EulerCamera camera, VolumeDataset volume);
 
 int maxRaySteps = 1000;
 float rayStepSize = 0.005f;
@@ -77,6 +77,26 @@ GLuint createOverlayQuad(int location) {
 			0.5f, 1.0f,	0.0f, 1.0f,	//Top Left
 			1.0f, 0.5f,	1.0f, 0.0f,	//Bottom Right
 			1.0f, 1.0f,	1.0f, 1.0f	//Top Right
+		};
+		break;
+	case 4:	//Right of Screen
+		verts = new float[16]
+		{
+			//positions		//textures
+			0.0f, -1.0f,	0.0f, 0.0f,	//Bottom Left
+			0.0f, 1.0f,	0.0f, 1.0f,	//Top Left
+			1.0f, -1.0f,	1.0f, 0.0f,	//Bottom Right
+			1.0f, 1.0f,	1.0f, 1.0f	//Top Right
+		};
+		break;
+	case 5:	//Right of Screen
+		verts = new float[16]
+		{
+			//positions		//textures
+			-1.0f, -1.0f,	0.0f, 0.0f,	//Bottom Left
+			-1.0f, 1.0f,	0.0f, 1.0f,	//Top Left
+			0.0f, -1.0f,	1.0f, 0.0f,	//Bottom Right
+			0.0f, 1.0f,	1.0f, 1.0f	//Top Right
 		};
 		break;
 	}
@@ -216,10 +236,10 @@ void LaunchComputeShader(GLuint shaderProgramID, GLuint initialTexture3D, GLuint
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
-void LaunchVisibilityComputeShader(TransferFunction transferFunction, GLuint shaderProgramID, GLuint dataTexture, GLuint visibilityTexture, VolumeDataset volume, EulerCamera &camera)
+void LaunchVisibilityComputeShader(VolumeTexture* container, GLuint shaderProgramID, EulerCamera camera, VolumeDataset volume)
 {
 	glUseProgram(shaderProgramID);
-	glBindImageTexture(0, visibilityTexture, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
+	glBindImageTexture(0, container->visibilityTexture, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
 
 	glUniform3f(glGetUniformLocation(shaderProgramID, "camPos"), camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
 	glUniform1i(glGetUniformLocation(shaderProgramID, "maxRaySteps"), maxRaySteps);
@@ -227,11 +247,11 @@ void LaunchVisibilityComputeShader(TransferFunction transferFunction, GLuint sha
 
 	glActiveTexture(GL_TEXTURE0);
 	glUniform1i(glGetUniformLocation(shaderProgramID, "volume"), 0);
-	glBindTexture(GL_TEXTURE_3D, dataTexture);
+	glBindTexture(GL_TEXTURE_3D, container->dataTexture);
 
 	glActiveTexture(GL_TEXTURE1);
 	glUniform1i(glGetUniformLocation(shaderProgramID, "transferFunc"), 1);
-	glBindTexture(GL_TEXTURE_1D, transferFunction.tfTexture);
+	glBindTexture(GL_TEXTURE_1D, container->dataTF.tfTexture);
 
 	GLint localWorkGroupSize[3] = { 0 };
 	glGetProgramiv(shaderProgramID, GL_COMPUTE_WORK_GROUP_SIZE, localWorkGroupSize);
