@@ -14,11 +14,6 @@ EulerCamera::EulerCamera(glm::vec3 pos, int screenWidth, int screenHeight)
 	up = glm::vec3(0.0, 1.0, 0.0);
 	worldup = up;
 
-	yawInput = 0;
-	pitchInput = 0;
-	rollInput = 0;
-	forwardInput = 0;
-	rightInput = 0;
 	rotateYaw = 270;
 	rotatePitch = 0;
 }

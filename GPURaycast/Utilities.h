@@ -16,8 +16,8 @@ GLuint createOverlayQuad(int location);
 GLuint BlankTexture(int tex_w, int tex_h);
 void DebugWorkGroups();
 void Raycast(TransferFunction transferFunction, GLuint currTexture3D, GLuint shaderProgramID, EulerCamera &camera);
-void LaunchComputeShader(GLuint shaderProgramID, GLuint initialTexture3D, GLuint destinationTexture3D, VolumeDataset volume);
-void LaunchVisibilityComputeShader(VolumeTexture* container, GLuint shaderProgramID, EulerCamera camera, VolumeDataset volume);
+void LaunchComputeShader(GLuint shaderProgramID, GLuint initialTexture3D, GLuint destinationTexture3D, VolumeDataset volume, GLfloat visibilityLowerLimit);
+void LaunchVisibilityComputeShader(VolumeTexture* container, GLuint shaderProgramID, EulerCamera camera, VolumeDataset volume, GLfloat visibilityLowerLimit);
 
 int maxRaySteps = 1000;
 float rayStepSize = 0.005f;
@@ -224,11 +224,12 @@ void Raycast(TransferFunction transferFunction, GLuint currTexture3D, GLuint sha
 	glBindTexture(GL_TEXTURE_3D, 0);
 }
 
-void LaunchComputeShader(GLuint shaderProgramID, GLuint initialTexture3D, GLuint destinationTexture3D, VolumeDataset volume)
+void LaunchComputeShader(GLuint shaderProgramID, GLuint initialTexture3D, GLuint destinationTexture3D, VolumeDataset volume, GLfloat visibilityLowerLimit)
 {
 	glUseProgram(shaderProgramID);
 	glBindImageTexture(0, initialTexture3D, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
 	glBindImageTexture(1, destinationTexture3D, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
+	glUniform1f(glGetUniformLocation(shaderProgramID, "lowerLimit"), visibilityLowerLimit);
 
 	GLint localWorkGroupSize[3] = { 0 };
 	glGetProgramiv(shaderProgramID, GL_COMPUTE_WORK_GROUP_SIZE, localWorkGroupSize);
@@ -236,7 +237,7 @@ void LaunchComputeShader(GLuint shaderProgramID, GLuint initialTexture3D, GLuint
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
-void LaunchVisibilityComputeShader(VolumeTexture* container, GLuint shaderProgramID, EulerCamera camera, VolumeDataset volume)
+void LaunchVisibilityComputeShader(VolumeTexture* container, GLuint shaderProgramID, EulerCamera camera, VolumeDataset volume, GLfloat visibilityLowerLimit)
 {
 	glUseProgram(shaderProgramID);
 	glBindImageTexture(0, container->visibilityTexture, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
@@ -244,6 +245,7 @@ void LaunchVisibilityComputeShader(VolumeTexture* container, GLuint shaderProgra
 	glUniform3f(glGetUniformLocation(shaderProgramID, "camPos"), camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
 	glUniform1i(glGetUniformLocation(shaderProgramID, "maxRaySteps"), maxRaySteps);
 	glUniform1f(glGetUniformLocation(shaderProgramID, "rayStepSize"), rayStepSize);
+	glUniform1f(glGetUniformLocation(shaderProgramID, "lowerLimit"), visibilityLowerLimit);
 
 	glActiveTexture(GL_TEXTURE0);
 	glUniform1i(glGetUniformLocation(shaderProgramID, "volume"), 0);

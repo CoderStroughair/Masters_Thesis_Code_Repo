@@ -3,6 +3,8 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 16) in;
 layout (r8, binding = 0) uniform image3D volumeData;
 layout (r8, binding = 1) uniform image3D laplacian;
 
+uniform float lowerLimit;
+
 float kernel3D[3][3][3] = {	// 3DArray[x][y][z]
 	{//[x = 0]
 		{0.0, 0.0, 0.0}, //[y = 0]
@@ -42,5 +44,10 @@ void main()
 			}
 		}
 	}
-	imageStore(laplacian, ivec3(gl_GlobalInvocationID), vec4(total*10, 0.0, 0.0, 1.0));
+	/*OPTIONAL*/
+	if (total < lowerLimit)
+		total = 0.0f;
+	/*END_OPTIONAL*/
+
+	imageStore(laplacian, ivec3(gl_GlobalInvocationID), vec4(total, 0.0, 0.0, 1.0));
 }

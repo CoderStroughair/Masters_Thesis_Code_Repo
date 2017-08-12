@@ -8,7 +8,7 @@ uniform vec3 camPos;
 
 uniform int maxRaySteps;
 uniform float rayStepSize;
-
+uniform float lowerLimit;
 
 //This function takes the position from the Compute Shader and converts into World Space where the
 //object is centered on (0,0,0)
@@ -60,5 +60,11 @@ void main()
 		if (currentOpacity <= 0 || abs(position.x) > 1.0f || abs(position.y) > 1.0f || abs(position.z) > 1.0f)
 			break;
 	}
+
+	/*OPTIONAL*/
+	if (currentOpacity < lowerLimit)
+		currentOpacity = 0.0f;
+	/*END_OPTIONAL*/
+
 	imageStore(visibilityTexture, ivec3(gl_GlobalInvocationID.xyz), vec4(currentOpacity, 0.0, 0.0, 1.0));
 }

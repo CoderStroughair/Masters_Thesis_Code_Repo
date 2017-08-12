@@ -15,7 +15,6 @@
 #include "VolumeDataset.h"
 #include "VolumeTexture.h"
 #include "Framebuffer.h"
-#include <cstdarg>
 
 using namespace std;
 
@@ -44,6 +43,8 @@ int currentTimestep = 0;
 bool laplacianFinished = false;
 
 bool renderLaplace = false;
+int changeLowerLimit = 0;
+float visibilityLowerLimit = 0.0f;
 /*----------------------------------------------------------------------------
 						FUNCTION DEFINITIONS
 ----------------------------------------------------------------------------*/
@@ -87,12 +88,12 @@ void display()
 
 	if (laplacianFinished != true)
 	{
-		LaunchComputeShader(GaussianShaderID, volumeContainer3D->dataTexture, volumeContainer3D->smoothedTexture, volume);
-		LaunchComputeShader(LaplaceShaderID, volumeContainer3D->smoothedTexture, volumeContainer3D->laplacianTexture, volume);
+		LaunchComputeShader(GaussianShaderID, volumeContainer3D->dataTexture, volumeContainer3D->smoothedTexture, volume, 0);
+		LaunchComputeShader(LaplaceShaderID, volumeContainer3D->smoothedTexture, volumeContainer3D->laplacianTexture, volume, visibilityLowerLimit);
 		laplacianFinished = true;
 	}
 
-	LaunchVisibilityComputeShader(volumeContainer3D, visibilityShaderID, dataVolumeCamera, volume);
+	LaunchVisibilityComputeShader(volumeContainer3D, visibilityShaderID, dataVolumeCamera, volume, visibilityLowerLimit);
 
 	//Probably around here you're gonna need to start setting up your variables to go into the Raycasting.
 	glBindFramebuffer(GL_FRAMEBUFFER, fbVisibility.framebuffer);
@@ -163,6 +164,11 @@ void updateScene()
 
 	overlayCamera.orbitAround(glm::vec3(0.0, 0.0, 0.0), rotateVisualZ, rotateVisualY);
 
+	visibilityLowerLimit += changeLowerLimit / 500.0;
+	if (visibilityLowerLimit > 1.0)
+		visibilityLowerLimit = 1.0;
+	else if (visibilityLowerLimit < 0.0)
+		visibilityLowerLimit = 0.0;
 
 	glutPostRedisplay();
 }
@@ -257,28 +263,23 @@ void keypressUp(unsigned char key, int x, int y){
 void specialKeypress(int key, int x, int y){
 	switch (key)
 	{
-	case (GLUT_KEY_SHIFT_L):
-	case (GLUT_KEY_SHIFT_R):
-		break;
 	case (GLUT_KEY_LEFT):
-		dataVolumeCamera.yawInput = -1;
 		break;
 	case (GLUT_KEY_RIGHT):
-		dataVolumeCamera.yawInput = 1;
 		break;
 	case (GLUT_KEY_UP):
-		dataVolumeCamera.pitchInput = 1;
 		break;
 	case (GLUT_KEY_DOWN):
-		dataVolumeCamera.pitchInput = -1;
+		break;
+	case(GLUT_KEY_F1):
+		changeLowerLimit = 1;
+		if(renderLaplace)
+		laplacianFinished = false;
 		break;
 	case(GLUT_KEY_F2):
-		break;
-	case(GLUT_KEY_F3):
-		break;
-	case(GLUT_KEY_F4):
-		break;
-	case(GLUT_KEY_F5):
+		changeLowerLimit = -1;
+		if(renderLaplace)
+		laplacianFinished = false;
 		break;
 	}
 }
@@ -286,26 +287,15 @@ void specialKeypress(int key, int x, int y){
 void specialKeypressUp(int key, int x, int y){
 	switch (key)
 	{
-	case (GLUT_KEY_SHIFT_L):
-	case (GLUT_KEY_SHIFT_R):
-		break;
 	case (GLUT_KEY_LEFT):
 	case (GLUT_KEY_RIGHT):
-		dataVolumeCamera.yawInput = 0;
 		break;
 	case (GLUT_KEY_UP):
 	case (GLUT_KEY_DOWN):
-		dataVolumeCamera.pitchInput = 0;
 		break;
 	case(GLUT_KEY_F1):
-		break;
 	case(GLUT_KEY_F2):
-	case(GLUT_KEY_F3):
-		break;
-	case(GLUT_KEY_F4):
-	case(GLUT_KEY_F5):
-		cout << dataVolumeCamera.getFront().x << " " << dataVolumeCamera.getFront().y << " " << dataVolumeCamera.getFront().z << " " << endl;
-		cout << dataVolumeCamera.getPosition().x << " " << dataVolumeCamera.getPosition().y << " " << dataVolumeCamera.getPosition().z << " " << endl;
+		changeLowerLimit = 0;
 		break;
 	}
 }
