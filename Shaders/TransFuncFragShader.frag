@@ -88,8 +88,8 @@ void main()
 		if (abs(position.x) > 1.0f || abs(position.y) > 1.0f || abs(position.z) > 1.0f || absorption >= 1.0f)
 		{
 		//Uncomment to colour white all non important pixels, ie, those with no opaque voxels contributing to them.
-			//if (absorption < 1.0f)
-				//finalColor += vec4(1.0f, 1.0f, 1.0f, 1.0f) * (1.0f - absorption);
+			if (absorption < 1.0f)
+				finalColor += vec4(1.0f, 1.0f, 1.0f, 1.0f) * (1.0f - absorption);
 				int border = 0;
 			if(abs(facePos.x) >= 0.95f)
 				border++;
@@ -98,7 +98,7 @@ void main()
 			if(abs(facePos.z) >= 0.95f)
 				border++;
 			if(border >= 2)
-				finalColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+				finalColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 			break;
 		}
 	}

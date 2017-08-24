@@ -21,7 +21,7 @@
 #define INVERSE_COMPUTE_SHADER		"../Shaders/InverseComputeShader.comp"
 #define COMPUTE_3D_SHADER			"../Shaders/3DComputeShader.comp"
 #define LAPLACIAN_COMPUTE_SHADER	"../Shaders/LaplacianShader.comp"
-#define GAUSSIAN_COMPUTE_SHADER		"../Shaders/GaussianShader.comp"
+#define LOCAL_MAXIMA_COMPUTE_SHADER		"../Shaders/LocalMaximaShader.comp"
 #define VISIBILITY_COMPUTE_SHADER	"../Shaders/VisibilityCalculator.comp"
 
 #define VERTEX_SHADER				"../Shaders/VertexShader.vert"
@@ -35,39 +35,47 @@
 #define BONSAI_PATH					"../Samples/Bonsai/"
 #define BONSAI_HEADER				"../Samples/Bonsai/Bonsai.mhd"
 
-#define HEAD_PATH					"../Samples/CThead/"
-#define	HEAD_HEADER					"../Samples/CThead/CThead.mhd"
-
 #define	KNEE_PATH					"../Samples/CTknee/"
 #define	KNEE_HEADER					"../Samples/CTknee/CTknee.mhd"
 
 #define NUCLEON_PATH				"../Samples/Nucleon/"
 #define NUCLEON_HEADER				"../Samples/Nucleon/nucleon.mhd"
 
-#define TOOTH_PATH					"../Samples/Tooth/"
-#define TOOTH_HEADER				"../Samples/Tooth/Tooth_A.mhd"
+#define TOOTH_PATH					"../data/"
+#define TOOTH_HEADER				"../data/tooth.mhd"
+
+#define ENGINE_PATH					"../data/"
+#define ENGINE_HEADER				"../data/Engine.mhd"
 
 /*----------------------------------------------------------------------------
 						MESH AND TEXTURE VARIABLES
 ----------------------------------------------------------------------------*/
 
+#define LAPLACE_TEXTURE			"../Textures/laplacianTexture.png"
+#define OPACITY_TEXTURE			"../Textures/computedOpacityTexture.png"
+#define	DATA_TEXTURE			"../Textures/dataVolumeTexture.png"
 
 /*----------------------------------------------------------------------------
 							TRANSFER FUNCTIONS
 ----------------------------------------------------------------------------*/
 
-#define TRANS_CTKNEE			"../transferfuncs/CT-Knee_spectrum_16_balance.tfi"
-#define TRANS_VISMALE			"../transferfuncs/VisMale_spectrum_4_balance_1000.tfi"
-#define TRANS_BLUESMOKE			"../transferfuncs/BlueSmoke.tfi"
-#define TRANS_NUCLEON			"../transferfuncs/nucleon.tfi"
-#define TRANS_MRI_KNEE			"../transferfuncs/MRIKnee.tfi"
-#define TRANS_MRI_KNEE_TRANS	"../transferfuncs/MRIKneeTrans.tfi"
-#define TRANS_SUPERNOVA			"../transferfuncs/supernova.tfi"
-#define TRANS_TEST				"../transferfuncs/test.tfi"
-#define TRANS_TEST2				"../transferfuncs/test2.tfi"
-#define TRANS_VISIBILITY		"../transferfuncs/visibility.tfi"
-#define TRANS_LAPLACIAN			"../transferfuncs/laplacian.tfi"
-#define TRANS_TOOTH				"../Samples/Tooth/tooth.tfi"
+#define TRANS_CTKNEE				"../transferfuncs/CT-Knee_spectrum_16_balance.tfi"
+#define TRANS_VISMALE				"../transferfuncs/VisMale_spectrum_4_balance_1000.tfi"
+#define TRANS_BLUESMOKE				"../transferfuncs/BlueSmoke.tfi"
+#define TRANS_NUCLEON				"../transferfuncs/nucleon.tfi"
+#define TRANS_MRI_KNEE				"../transferfuncs/MRIKnee.tfi"
+#define TRANS_MRI_KNEE_TRANS		"../transferfuncs/MRIKneeTrans.tfi"
+#define TRANS_SUPERNOVA				"../transferfuncs/supernova.tfi"
+#define TRANS_TEST					"../transferfuncs/test.tfi"
+#define TRANS_TEST2					"../transferfuncs/test2.tfi"
+#define TRANS_VISIBILITY			"../transferfuncs/visibility.tfi"
+#define TRANS_LAPLACIAN				"../transferfuncs/laplacian.tfi"
+#define TRANS_TOOTH					"../Samples/Tooth/tooth.tfi"
+#define TRANS_TOOTH2				"../data/tooth_balance.tfi"
+#define TRANS_TOOTH2LOW				"../data/tooth_balance_low.tfi"
+#define TRANS_TOOTH2VLOW			"../data/tooth_balance_verylow.tfi"
+#define TRANS_TOOTH2VVLOW			"../data/tooth_balance_veryverylow.tfi"
+#define TRANS_ENGINE				"../data/Engine.tfi"
 
 /*--------------------------------------------------------------------------*/
 

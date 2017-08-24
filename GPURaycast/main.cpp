@@ -45,13 +45,16 @@ bool laplacianFinished = false;
 bool renderLaplace = false;
 int changeLowerLimit = 0;
 float visibilityLowerLimit = 0.0f;
+float average = 0;
+float total = 0;
+int numNumbers = 0;
 /*----------------------------------------------------------------------------
 						FUNCTION DEFINITIONS
 ----------------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------------*/
 
-GLuint visibilityVAO, volumeVAO, overlayID, transfuncShaderID, computeShaderID, inverseComputeShaderID, LaplaceShaderID, GaussianShaderID;
+GLuint visibilityVAO, volumeVAO, overlayID, transfuncShaderID, computeShaderID, inverseComputeShaderID, LaplaceShaderID, MaximaShaderID;
 GLuint visibilityShaderID;
 int tex_w = width*3, tex_h = height*3;
 
@@ -59,17 +62,18 @@ void init()
 {
 	fbVisibility.init(width, height);
 	fbVolume.init(width, height);
-	Shader factory;
-	computeShaderID = factory.CompileComputeShader(RAY_COMPUTE_SHADER);
-	inverseComputeShaderID = factory.CompileComputeShader(INVERSE_COMPUTE_SHADER);
-	LaplaceShaderID = factory.CompileComputeShader(LAPLACIAN_COMPUTE_SHADER);
-	GaussianShaderID = factory.CompileComputeShader(GAUSSIAN_COMPUTE_SHADER);
-	visibilityShaderID = factory.CompileComputeShader(VISIBILITY_COMPUTE_SHADER);
-	volumeVAO = createOverlayQuad(5);
-	visibilityVAO = createOverlayQuad(4);
-	overlayID = factory.CompileShader(VERTEX_SHADER, FRAGMENT_SHADER);
-	transfuncShaderID = factory.CompileShader(TRANS_VERTEX_SHADER, TRANS_FRAGMENT_SHADER);
+	Shader shaderFactory;
+	computeShaderID = shaderFactory.CompileComputeShader(RAY_COMPUTE_SHADER);
+	inverseComputeShaderID = shaderFactory.CompileComputeShader(INVERSE_COMPUTE_SHADER);
+	LaplaceShaderID = shaderFactory.CompileComputeShader(LAPLACIAN_COMPUTE_SHADER);
+	MaximaShaderID = shaderFactory.CompileComputeShader(LOCAL_MAXIMA_COMPUTE_SHADER);
+	visibilityShaderID = shaderFactory.CompileComputeShader(VISIBILITY_COMPUTE_SHADER);
+	volumeVAO = createOverlayQuad(4);
+	visibilityVAO = createOverlayQuad(5);
+	overlayID = shaderFactory.CompileShader(VERTEX_SHADER, FRAGMENT_SHADER);
+	transfuncShaderID = shaderFactory.CompileShader(TRANS_VERTEX_SHADER, TRANS_FRAGMENT_SHADER);
 	DebugWorkGroups();
+
 	glEnable(GL_DEPTH_TEST);
 
 	dataVolumeCamera = EulerCamera(glm::vec3(0.0, 0.0, -5.0), width/2, height);
@@ -81,40 +85,43 @@ void init()
 
 void display()
 {
-	static vector<int> numberBacklog;
-	int total = 0;
-	static int average = 0;
-	clock_t initial = clock();
+	static vector<float> numberBacklog;
 
 	if (laplacianFinished != true)
 	{
-		LaunchComputeShader(GaussianShaderID, volumeContainer3D->dataTexture, volumeContainer3D->smoothedTexture, volume, 0);
-		LaunchComputeShader(LaplaceShaderID, volumeContainer3D->smoothedTexture, volumeContainer3D->laplacianTexture, volume, visibilityLowerLimit);
+		LaunchComputeShader(LaplaceShaderID, volumeContainer3D->dataTexture, volumeContainer3D->laplacianTexture, volume, visibilityLowerLimit, volumeContainer3D->dataTF.tfTexture);
 		laplacianFinished = true;
 	}
 
+	clock_t initial = clock();
+
 	LaunchVisibilityComputeShader(volumeContainer3D, visibilityShaderID, dataVolumeCamera, volume, visibilityLowerLimit);
 
+	clock_t timeTaken = clock() - initial;
 	//Probably around here you're gonna need to start setting up your variables to go into the Raycasting.
-	glBindFramebuffer(GL_FRAMEBUFFER, fbVisibility.framebuffer);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-
-	if(renderLaplace)
-		Raycast(volumeContainer3D->visibilityTF, volumeContainer3D->laplacianTexture, transfuncShaderID, overlayCamera);
-	else	
-		Raycast(volumeContainer3D->visibilityTF, volumeContainer3D->visibilityTexture, transfuncShaderID, overlayCamera);
-
 
 	glBindFramebuffer(GL_FRAMEBUFFER, fbVolume.framebuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glClearColor(1.0, 1.0, 1.0, 1.0);
 
 	Raycast(volumeContainer3D->dataTF, volumeContainer3D->dataTexture, transfuncShaderID, dataVolumeCamera);
 
+	glBindFramebuffer(GL_FRAMEBUFFER, fbVisibility.framebuffer);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(1.0, 1.0, 1.0, 1.0);
+
+	if (renderLaplace)
+	{
+		Raycast(volumeContainer3D->laplacianTF, volumeContainer3D->laplacianTexture, transfuncShaderID, overlayCamera);
+	}
+	else
+	{
+		Raycast(volumeContainer3D->visibilityTF, volumeContainer3D->visibilityTexture, transfuncShaderID, overlayCamera);
+	}
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glClearColor(1.0, 1.0, 1.0, 1.0);
 
 	glUseProgram(overlayID);
 	glBindVertexArray(visibilityVAO);
@@ -129,15 +136,12 @@ void display()
 
 	glutSwapBuffers();
 
-	numberBacklog.push_back(clock() - initial);
-	if (numberBacklog.size() > 20)
-		numberBacklog.erase(numberBacklog.begin());
-	for (int i = 0; i < numberBacklog.size(); i++)
-		total += numberBacklog[i];
-	if (average != total / numberBacklog.size())
+	total += timeTaken;
+	numNumbers++;
+	average = total / numNumbers;
+	if (numNumbers == 360)
 	{
-		average = total / numberBacklog.size();
-		cout << average << endl;
+		cout << "Average of 360 frames: " << average/CLOCKS_PER_SEC << endl;
 	}
 }
 
@@ -164,11 +168,7 @@ void updateScene()
 
 	overlayCamera.orbitAround(glm::vec3(0.0, 0.0, 0.0), rotateVisualZ, rotateVisualY);
 
-	visibilityLowerLimit += changeLowerLimit / 500.0;
-	if (visibilityLowerLimit > 1.0)
-		visibilityLowerLimit = 1.0;
-	else if (visibilityLowerLimit < 0.0)
-		visibilityLowerLimit = 0.0;
+	visibilityLowerLimit += changeLowerLimit / 10.0;
 
 	glutPostRedisplay();
 }
@@ -256,6 +256,10 @@ void keypressUp(unsigned char key, int x, int y){
 		break;
 	case(' '):
 		renderLaplace = !renderLaplace;
+		break;
+	case('p'):
+	case('P'):
+		cout << visibilityLowerLimit << endl;
 		break;
 	}
 }

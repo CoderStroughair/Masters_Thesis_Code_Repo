@@ -57,6 +57,7 @@ private:
 	glm::mat4 proj;
 	GLfloat sensitivity, degrees;
 
+	int direction = 1;
 	void resetFront();
 };
 

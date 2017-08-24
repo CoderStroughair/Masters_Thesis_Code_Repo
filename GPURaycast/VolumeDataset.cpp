@@ -5,7 +5,7 @@
 void VolumeDataset::Init()
 {
 	VolumeProperties properties;
-	voxelReader.LoadVolume(KNEE_PATH, KNEE_HEADER, properties);
+	voxelReader.LoadVolume(BONSAI_PATH, BONSAI_HEADER, properties);
 
 	memblock3D = properties.bufferAddress;
 	timesteps = properties.timesteps;

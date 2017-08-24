@@ -16,7 +16,7 @@ GLuint createOverlayQuad(int location);
 GLuint BlankTexture(int tex_w, int tex_h);
 void DebugWorkGroups();
 void Raycast(TransferFunction transferFunction, GLuint currTexture3D, GLuint shaderProgramID, EulerCamera &camera);
-void LaunchComputeShader(GLuint shaderProgramID, GLuint initialTexture3D, GLuint destinationTexture3D, VolumeDataset volume, GLfloat visibilityLowerLimit);
+void LaunchComputeShader(GLuint shaderProgramID, GLuint initialTexture3D, GLuint destinationTexture3D, VolumeDataset volume, GLfloat visibilityLowerLimit, GLuint transferFunction);
 void LaunchVisibilityComputeShader(VolumeTexture* container, GLuint shaderProgramID, EulerCamera camera, VolumeDataset volume, GLfloat visibilityLowerLimit);
 
 int maxRaySteps = 1000;
@@ -79,17 +79,7 @@ GLuint createOverlayQuad(int location) {
 			1.0f, 1.0f,	1.0f, 1.0f	//Top Right
 		};
 		break;
-	case 4:	//Right of Screen
-		verts = new float[16]
-		{
-			//positions		//textures
-			0.0f, -1.0f,	0.0f, 0.0f,	//Bottom Left
-			0.0f, 1.0f,	0.0f, 1.0f,	//Top Left
-			1.0f, -1.0f,	1.0f, 0.0f,	//Bottom Right
-			1.0f, 1.0f,	1.0f, 1.0f	//Top Right
-		};
-		break;
-	case 5:	//Right of Screen
+	case 4:	//Left of Screen
 		verts = new float[16]
 		{
 			//positions		//textures
@@ -99,15 +89,27 @@ GLuint createOverlayQuad(int location) {
 			0.0f, 1.0f,	1.0f, 1.0f	//Top Right
 		};
 		break;
+	case 5:	//Right of Screen
+		verts = new float[16]
+		{
+			//positions		//textures
+			0.0f, -1.0f,	0.0f, 0.0f,	//Bottom Left
+			0.0f, 1.0f,		0.0f, 1.0f,	//Top Left
+			1.0f, -1.0f,	1.0f, 0.0f,	//Bottom Right
+			1.0f, 1.0f,		1.0f, 1.0f	//Top Right
+		};
+		break;
+	case 6:	//Bottom of Screen
+		verts = new float[16]
+		{
+			//positions		//textures
+			-0.5f, -1.0f,	0.0f, 0.0f,	//Bottom Left
+			-0.5f, -0.5f,	0.0f, 1.0f,	//Top Left
+			0.5f, -1.0f,	1.0f, 0.0f,	//Bottom Right
+			0.5f, -0.5f,	1.0f, 1.0f	//Top Right
+		};
+		break;
 	}
-	//verts = new float[16]
-	//{
-	//	//positions		//textures
-	//	1.0f, -1.0f,	0.0f, 0.0f,	//Bottom Left
-	//	1.0f, -1.0f,	0.0f, 1.0f,	//Top Left
-	//	1.0f, -1.0f,	1.0f, 0.0f,	//Bottom Right
-	//	1.0f, -1.0f,	1.0f, 1.0f	//Top Right
-	//};
 
 
 	glGenBuffers(1, &vbo);
@@ -224,12 +226,16 @@ void Raycast(TransferFunction transferFunction, GLuint currTexture3D, GLuint sha
 	glBindTexture(GL_TEXTURE_3D, 0);
 }
 
-void LaunchComputeShader(GLuint shaderProgramID, GLuint initialTexture3D, GLuint destinationTexture3D, VolumeDataset volume, GLfloat visibilityLowerLimit)
+void LaunchComputeShader(GLuint shaderProgramID, GLuint initialTexture3D, GLuint destinationTexture3D, VolumeDataset volume, GLfloat visibilityLowerLimit, GLuint transferFunction)
 {
 	glUseProgram(shaderProgramID);
 	glBindImageTexture(0, initialTexture3D, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
 	glBindImageTexture(1, destinationTexture3D, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
 	glUniform1f(glGetUniformLocation(shaderProgramID, "lowerLimit"), visibilityLowerLimit);
+
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(glGetUniformLocation(shaderProgramID, "transferFunc"), 0);
+	glBindTexture(GL_TEXTURE_1D, transferFunction);
 
 	GLint localWorkGroupSize[3] = { 0 };
 	glGetProgramiv(shaderProgramID, GL_COMPUTE_WORK_GROUP_SIZE, localWorkGroupSize);
