@@ -1,0 +1,45 @@
+\chapter{Implementation}
+
+This chapter explains the implementation of the project goals. A Volumetric Renderer was provided initially to allow for more time to be devoted to the project's implementation rather than for its creation. Many portions of this original code still remain, however much of it was refactored or replaced during the project, to allow for better readability and useability.
+
+The chapter is divided into two main sections. The first section deals with the shaders created during the project period. The second section breaks down the code that runs on the CPU. 
+
+\section{Shader Design}
+
+This section contains two subsections. The first looks at the work done by the Compute Shader in calculating the Visibility Field. The second looks at the work done in calculating the saliency field.
+
+\subsection{Volumetric Rendering Shader}
+
+This shader was provided as part of the Renderer supplied at the start of the project period. It implements a ray marching algorithm for calculating the colour for each fragment from the data volume provided.
+
+The code works by first finding the normalised direction vector from the camera to the current fragment. The absorption for that fragment is set to $0.0$, and the code enters the main loop. Within this loop, the colour for that position within the data volume is calculated, multiplied by its opacity value, and added to the total colour (set to $(0.0, 0.0, 0.0, 0.0)$ initially). The opacity of the colour is added to the absorption for the fragment. The next sampling position is calculated by moving along the direction vector. 
+
+At this point, the algorithm determines whether it needs to continue. If the new position is outside the bounds of the data volume, or if the absorption of the fragment is equal or greater than 1.0, then it can return the current colour value. Otherwise, it calculates the colour for that new position, multiplies it again by the opacity value, and adds it to the total colour.
+
+A later addition to this code was the ability to draw a border along the edge of the volume, for aesthetic purposes. If the initial position of the fragment is within a tolerance of the edge of the volume, the final colour outputted is black. In each data volume used, there is no relevant information stored this close to the edge of the volume, so it has no effect on viewing the final image. It does however serve to better understand where the camera is with relation to the primary axes.
+
+\subsection{Visibility Field Shader}
+
+When developing this shader, the problem of coordinate space was a constant concern. The data volume and camera are always within world space, which centers the object on (0,0,0), and the camera relative to this. However, the data volume is only accessible via texture space, where (0,0,0) is a corner of the volume. This required a number of conversion functions to be written to accomodate this.
+
+The calculations are performed per voxel, taking full advantage of the design of the compute shader by assigning each voxel to a shader invocation. The algorithm then inspiration from per-voxel volumetric rendering by raymarching from the voxel to the camera, calculating the opacity of the voxel relative to the voxels in front of it. This is achieved by subtracting the opacity of any voxels encountered during the raymarch from the current opacity of the voxel. If this opacity drops below 0, the voxel is not visible at all to the user, and the algorithm ends early. If the algorithm detects that it is outside of the limits of the volume, it also ends early.
+
+The second problem that was encountered was one of sampling frequency. One issue with raymarching algorithms for volumetric rendering is how often should the ray sample the data to get one sample per voxel. Along any of the primary axes this is simply half the length of a voxel, but when projecting along any other line, this distance is different. The solution however to this was quite simple. Previously, the data volume and the output volume were passed to the shader using the $Image3D$ texture format. This allows data to be written to a variable and outputted back to the CPU, an important aspect to my solution. This limits the access of this data to integer values, meaning no interpolation. To negate the need for a variable sampling frequency, all that was required was to change the input of the data volume to a $Sampler3D$ format, and interpolate the opacity value required.
+
+\subsection{Saliency Field Shader}
+
+In most edge detection algorithms, a filter is applied to a greyscale version of the data. This would not be suitable in this case however, due to the importance of colour in depicting saliency. To mitigate this, the intensity of the colour for a voxel is determined by calculating the length of the 3D colour vector, and multiplying it by the opacity value. This is then used with the filter to determine the value of the gradient in an area.
+
+The laplacian filter used here can be quite susceptible to noise, so a variable named $lowerLimit$ was included, whose value is user determined. In the case that the total value for a voxel is less than the value of $lowerLimit$, the voxel's value is set to 0.
+
+\section{CPU Code Design}
+
+This section deals with the code written to run on the CPU. The first section details how the Compute Shader is initialised and run. The second section explains the layout of the final rendered image.
+
+\subsection{Compute Shader Setup}
+
+Compute Shader setup is the same as the setup for Vertex and Fragment Shaders, but it differs in how it is called by the program. Rather than calling $DrawArrays()$, $DispatchCompute()$ is called instead, which requires the size of the local work group to be passed to it. Since the data being computed by the GPU during this time will be required later in the rendering pipeline, it is important to also call $glMemoryBarrier()$ to allow the Compute Shader to finish before continuing so as to ensure that no data hazards occur later on within the code.
+
+\subsection{Display Design}
+
+The code was built with the ability to orbit around each object independently. As such, each object is rendered separately to its own framebuffer object, each with its own camera with movement mapped to different keys. To fit both onto the screen, the horizontal screen size is halved, and each framebuffer is then rendered to a quad. The leftmost quad contains the original data volume, while the rightmost can either contain the visibility field volume or the saliency field volume, depending on the choice of the user.

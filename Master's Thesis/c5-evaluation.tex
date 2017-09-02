@@ -1,0 +1,62 @@
+\chapter{Evaluation}
+
+This chapter details the tests performed on the Visibility field computation code. The first test shows the difference in computation time between volumes of differing dimensions. The second test compared the computation times for the same volume but with the alpha values within the transfer function changed. The final test altered the size of the local work group within the compute shader to determine the impact on performance.
+
+For each of these tests, the speed was computed as an average over 360 frames, where the volume was rotated 1 degree each time. The measurement was taken using the system clock, and measured only the time it took to setup, call the Compute Shader and then wait for it to return.
+
+\section{Data Used}
+
+The tests detailed below use five different data volumes. These are listed below.
+
+\begin{table}
+
+\begin{center}
+\begin{tabular}{l|c}
+Data Set & Dimensions (x * y * z) \\
+\hline
+\hline
+Knee & 379 * 229 * 305 \\
+Bonsai & 256 * 256 * 256 \\
+Engine & 256 * 256 * 110 \\
+Tooth & 140 * 120 * 161 \\
+Nucleon & 41 * 41 * 41 
+\end{tabular}
+\end{center}
+\caption{\textit{List of data sets used and their size}}
+\end{table}
+
+The same transfer function was used for each test, with the exception of  the second test. In this case, new transfer functions were created by reducing the opacities for the original transfer function by a fraction. The transfer function with the lowest opacity values had been assigned values $\frac{1}{4}$ of those from the original, the next with $\frac{1}{2}$, and the final with $\frac{3}{4}$. 
+
+\section{Change in Computation Time against Volume Size}
+
+The aim of this test was to determine whether the computation time of the visibility field changed with a change in the size of the data set, and if so by how much. As shown in the table above, there was a good variety of sizes to test with, and the test resulted in the graph below. As would be expected, the graph suggests a linear relationship between average computation time and the size of the data set. The y-intercept is approximately 15ms, the time it took for the compute shaders to be set up and return the final values.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=1.0]{sizes.PNG} 
+\caption{\textit{A graph of the average computation times against the size of the data set being worked with}}
+\end{figure}
+
+\section{Change in Computation Time against Opacity}
+
+Within the shader code, there is an early exit in the case where the code determines that the voxel is no longer visible behind all the other voxels in front of it. The aim of this test was to determine whether the computation time of the visibility field would change if the opacities of the voxels was changed, and perhaps cause the early exit to be used less often. This was achieved by measuring the speed of the computation against the same transfer function, but each copy of the transfer function having a successively lower opacity value for the most common intensity value over all the data sets. The results are shown below. The data suggests that there could be a small increase with lower opacities for certain intensity values, but the results are inconclusive, given how small the change is.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=1.0]{alphaValues} 
+\caption{\textit{A graph of the average computation times for each version of the transfer function over a total of 360 frames.}}
+\end{figure}
+
+\section{Change in Computation Time against Local Work Group Size}
+
+The impact of the Local Work Group size on the Computation time was an unknown factor within this project. This test was designed to determine whether varying this size had any effect. It was evaluated by measuring the speed of the computation of the visibility field for different sizes of local group. The results are shown in figure 5.1 below. The data points to an exponential decrease in the computation time with an increase in workgroup size in powers of 2.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=1.0]{workgroupSize} 
+\caption{\textit{A graph of the average computation times for each work group size over a total of 360 frames.}}
+\end{figure}
+
+One interesting observation that was made was on the errors that cropped up within the volume during evaluation during this test. While varying the size of each dimension disproportionally had no visible difference from varying each dimension equally, it was noticed that if a single dimension became too large, the resulting volume displayed unusual consequences, such as portions no longer rendering, or refusing to render at all. 
+
+The cause of this error was discovered when the sizes of each volume were determined. The tests were performed for powers of two, but the dimensions of the volumes didn't follow this rule. This caused computational errors to occur as a direct consequence. It is recommended that data volumes undergo a primary step in which the data is transferred into a volume with dimensions of a power of 2, and to also ensure that the work group size is a suitable fraction of the full volume size, so that each work group performs the same amount of work.

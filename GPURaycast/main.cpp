@@ -141,7 +141,7 @@ void display()
 	average = total / numNumbers;
 	if (numNumbers == 360)
 	{
-		cout << "Average of 360 frames: " << average/CLOCKS_PER_SEC << endl;
+		cout << "Average of 360 frames: " << average/CLOCKS_PER_SEC * 1000 <<"ms"<< endl;
 	}
 }
 
@@ -164,7 +164,7 @@ void updateScene()
 			volumeContainer3D->UpdateTexture(currentTimestep, volume);
 		}
 	}
-	dataVolumeCamera.orbitAround(glm::vec3(0.0, 0.0, 0.0), rotateDataZ, rotateDataY);
+	dataVolumeCamera.orbitAround(glm::vec3(0.0, 0.0, 0.0), 1, 1);
 
 	overlayCamera.orbitAround(glm::vec3(0.0, 0.0, 0.0), rotateVisualZ, rotateVisualY);
 

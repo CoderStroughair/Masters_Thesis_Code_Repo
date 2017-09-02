@@ -5,7 +5,7 @@
 void VolumeDataset::Init()
 {
 	VolumeProperties properties;
-	voxelReader.LoadVolume(BONSAI_PATH, BONSAI_HEADER, properties);
+	voxelReader.LoadVolume(ENGINE_PATH, ENGINE_HEADER, properties);
 
 	memblock3D = properties.bufferAddress;
 	timesteps = properties.timesteps;
@@ -17,6 +17,8 @@ void VolumeDataset::Init()
 	bytesPerElement = properties.bytesPerElement;
 	littleEndian = properties.littleEndian;
 	elementType = properties.elementType;
+
+	std::cout << "Volume Dimensions:\n" << "X Res: " << xRes << "\n" << "Y Res: " << yRes << "\n" << "Z Res: " << zRes << "\n";
 
 }
 

@@ -4,7 +4,7 @@
 VolumeTexture::VolumeTexture(VolumeDataset &volume)
 {
 	dataTexture = GenerateTexture(volume);
-	dataTF.Init(TRANS_ENGINE, volume);
+	dataTF.Init(TRANS_TOOTH2VVLOW, volume);
 
 	smoothedTexture = GenerateBlankTexture(volume);
 	laplacianTexture = GenerateBlankTexture(volume);

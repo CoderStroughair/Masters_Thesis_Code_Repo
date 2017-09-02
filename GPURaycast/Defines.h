@@ -21,7 +21,7 @@
 #define INVERSE_COMPUTE_SHADER		"../Shaders/InverseComputeShader.comp"
 #define COMPUTE_3D_SHADER			"../Shaders/3DComputeShader.comp"
 #define LAPLACIAN_COMPUTE_SHADER	"../Shaders/LaplacianShader.comp"
-#define LOCAL_MAXIMA_COMPUTE_SHADER		"../Shaders/LocalMaximaShader.comp"
+#define LOCAL_MAXIMA_COMPUTE_SHADER	"../Shaders/LocalMaximaShader.comp"
 #define VISIBILITY_COMPUTE_SHADER	"../Shaders/VisibilityCalculator.comp"
 
 #define VERTEX_SHADER				"../Shaders/VertexShader.vert"
@@ -51,9 +51,6 @@
 						MESH AND TEXTURE VARIABLES
 ----------------------------------------------------------------------------*/
 
-#define LAPLACE_TEXTURE			"../Textures/laplacianTexture.png"
-#define OPACITY_TEXTURE			"../Textures/computedOpacityTexture.png"
-#define	DATA_TEXTURE			"../Textures/dataVolumeTexture.png"
 
 /*----------------------------------------------------------------------------
 							TRANSFER FUNCTIONS
