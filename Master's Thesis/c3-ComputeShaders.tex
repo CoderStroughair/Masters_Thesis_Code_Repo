@@ -1,11 +1,10 @@
 \chapter{Compute Shaders}
 
-Will this chapter even need sections? Honestly, I don't know. 
+In modern graphics programming, shaders are the process by which a programmer accesses the GPU to perform work. The most used shaders are the Vertex and Fragment shaders, which form part of the modern programmable graphics pipline. Vertex shaders perform work on individual vertices, while fragment shaders take the newly created fragments and perform operations on them. Other shaders such as the Geometry shader are also available to a programmer for their needs. Compute Shaders work outside of the pipeline, and work per job. The number of jobs  is dependent on the size of the global work group required by the program, but they can be grouped into local work groups for better memory allocation. When a compute shader is dispatched, the workgroups are formed into a 3-dimensional array, with the positions in the local workgroup and in the global workgroup represented by a vector.
 
-\section{A section of more Stuff}
+The strength of compute shaders lies in their flexibility. Their position as shaders allow them to take advantage of preexisting code written to create the rendering pipeline, making them a simple addition to most programs. Once set up properly, they can be used for a variety of tasks, from image processing to physics calculations. In the case where data written from a compute shader will immediately be used by the rendering pipeline, or by another compute shader, memory barriers must be placed into the code to prevent data hazards. Compute Shaders are able to take advantage of many of the strengths of other shaders, including the ability to share data between invocations through the \textit{shared} keyword. This must be paired with memory barriers within the shader itself to ensure no data hazards.
 
-Blah, blah, blah! Blah, blah, blah! Blah, blah, blah!
+There are of course, alternatives to Compute Shaders that can be used, such as OpenCL and CUDA, but Compute Shaders were chosen for this project for their simplicity. OpenCL requires a user to switch context to use it, but this is not the case when it comes to compute shaders. They are a core part of OpenGL from 4.3, meaning their use will only increase as more users upgrade to that level. They also do not require external libraries or drivers to be installed, making them beginner friendly. Since they are a type of shader, it is not necessary to worry about memory allocation in the same way as is required with CUDA.
 
-Blah, blah, blah! Blah, blah, blah! Blah, blah, blah!
 
 

@@ -12,20 +12,19 @@
 \contentsline {subsubsection}{Image-Order Approaches}{5}
 \contentsline {section}{\numberline {2.3}Visualisation}{5}
 \contentsline {chapter}{Chapter{} \numberline {3}Compute Shaders}{6}
-\contentsline {section}{\numberline {3.1}A section of more Stuff}{6}
-\contentsline {chapter}{Chapter{} \numberline {4}Implementation}{7}
-\contentsline {section}{\numberline {4.1}Shader Design}{7}
-\contentsline {subsection}{\numberline {4.1.1}Volumetric Rendering Shader}{7}
-\contentsline {subsection}{\numberline {4.1.2}Visibility Field Shader}{8}
-\contentsline {subsection}{\numberline {4.1.3}Saliency Field Shader}{9}
-\contentsline {section}{\numberline {4.2}CPU Code Design}{10}
-\contentsline {subsection}{\numberline {4.2.1}Compute Shader Setup}{10}
-\contentsline {subsection}{\numberline {4.2.2}Display Design}{10}
-\contentsline {chapter}{Chapter{} \numberline {5}Evaluation}{11}
-\contentsline {section}{\numberline {5.1}Data Used}{11}
-\contentsline {section}{\numberline {5.2}Change in Computation Time against Volume Size}{12}
-\contentsline {section}{\numberline {5.3}Change in Computation Time against Opacity}{13}
-\contentsline {section}{\numberline {5.4}Change in Computation Time against Local Work Group Size}{13}
-\contentsline {chapter}{Chapter{} \numberline {6}Conclusions}{15}
-\contentsline {chapter}{Appendix{} \numberline {A}Abbreviations}{16}
-\contentsline {chapter}{Bibliography}{17}
+\contentsline {chapter}{Chapter{} \numberline {4}Implementation}{8}
+\contentsline {section}{\numberline {4.1}Shader Design}{8}
+\contentsline {subsection}{\numberline {4.1.1}Volumetric Rendering Shader}{8}
+\contentsline {subsection}{\numberline {4.1.2}Visibility Field Shader}{9}
+\contentsline {subsection}{\numberline {4.1.3}Saliency Field Shader}{10}
+\contentsline {section}{\numberline {4.2}CPU Code Design}{11}
+\contentsline {subsection}{\numberline {4.2.1}Compute Shader Setup}{11}
+\contentsline {subsection}{\numberline {4.2.2}Display Design}{11}
+\contentsline {chapter}{Chapter{} \numberline {5}Evaluation}{12}
+\contentsline {section}{\numberline {5.1}Data Used}{12}
+\contentsline {section}{\numberline {5.2}Change in Computation Time against Volume Size}{13}
+\contentsline {section}{\numberline {5.3}Change in Computation Time against Opacity}{14}
+\contentsline {section}{\numberline {5.4}Change in Computation Time against Local Work Group Size}{14}
+\contentsline {chapter}{Chapter{} \numberline {6}Conclusions}{16}
+\contentsline {chapter}{Appendix{} \numberline {A}Abbreviations}{17}
+\contentsline {chapter}{Bibliography}{18}

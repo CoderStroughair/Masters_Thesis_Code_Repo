@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.10.29)  1 SEP 2017 13:40
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.10.29)  5 SEP 2017 14:00
 entering extended mode
 **./thesis.tex
 (thesis.tex
@@ -294,36 +294,36 @@ Chapter 2.
 
  (c3-ComputeShaders.tex
 Chapter 3.
-) [6
+[6
 
 
 
-]
+]) [7]
 \openout2 = `c4-method.aux'.
 
  (c4-method.tex
 Chapter 4.
-[7
+[8
 
 
 
-] [8] [9]) [10]
+] [9] [10]) [11]
 \openout2 = `c5-evaluation.aux'.
 
  (c5-evaluation.tex
 Chapter 5.
-[11
+[12
 
 
 
-] <images/sizes.PNG, id=72, 412.54124pt x 224.33812pt>
+] <images/sizes.PNG, id=75, 412.54124pt x 224.33812pt>
 File: images/sizes.PNG Graphic file (type png)
 
 <use images/sizes.PNG>
 Package pdftex.def Info: images/sizes.PNG used on input line 36.
 (pdftex.def)             Requested size: 412.54024pt x 224.33757pt.
- [12 <./images/sizes.PNG>]
-<images/alphaValues.png, id=78, 424.58624pt x 170.88844pt>
+ [13 <./images/sizes.PNG>]
+<images/alphaValues.png, id=81, 424.58624pt x 170.88844pt>
 File: images/alphaValues.png Graphic file (type png)
 
 <use images/alphaValues.png>
@@ -334,20 +334,20 @@ Overfull \hbox (2.7336pt too wide) in paragraph at lines 50--50
 []\OT1/cmr/bx/n/17.28 Change in Com-pu-ta-tion Time against Lo-cal Work
  []
 
-[13 <./images/alphaValues.png>]
-<images/workgroupSize.png, id=83, 278.54062pt x 204.01219pt>
+[14 <./images/alphaValues.png>]
+<images/workgroupSize.png, id=86, 278.54062pt x 204.01219pt>
 File: images/workgroupSize.png Graphic file (type png)
 
 <use images/workgroupSize.png>
 Package pdftex.def Info: images/workgroupSize.png used on input line 56.
 (pdftex.def)             Requested size: 278.53993pt x 204.01169pt.
-) [14 <./images/workgroupSize.png>]
+) [15 <./images/workgroupSize.png>]
 \openout2 = `c6-conclusion.aux'.
 
 
 (c6-conclusion.tex
 Chapter 6.
-) [15
+) [16
 
 
 
@@ -356,11 +356,11 @@ Chapter 6.
 
  (appendix1.tex
 Appendix A.
-) [16
+) [17
 
 
 
-] (biblio.tex) [17
+] (biblio.tex) [18
 
 
 ] (thesis.aux (c1-introduction.aux)
@@ -373,7 +373,7 @@ Here is how much of TeX's memory you used:
  5888 multiletter control sequences out of 15000+200000
  10782 words of font info for 38 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 40i,8n,25p,927b,247s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 40i,8n,25p,933b,247s stack positions out of 5000i,500n,10000p,200000b,50000s
 <A:/Program Files/MiK
 TeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><A:/Program Files/MiKTeX 2.9/
 fonts/type1/public/amsfonts/cm/cmcsc10.pfb><A:/Program Files/MiKTeX 2.9/fonts/t
@@ -382,9 +382,9 @@ lic/amsfonts/cm/cmr12.pfb><A:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfo
 nts/cm/cmr8.pfb><A:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cms
 l12.pfb><A:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti12.pfb>
 
-Output written on thesis.pdf (26 pages, 163745 bytes).
+Output written on thesis.pdf (27 pages, 165296 bytes).
 PDF statistics:
- 121 PDF objects out of 1000 (max. 8388607)
+ 124 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  16 words of extra memory for PDF output out of 10000 (max. 10000000)
 
