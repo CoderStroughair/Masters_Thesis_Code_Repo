@@ -4,6 +4,8 @@ This chapter details the tests performed on the Visibility field computation cod
 
 For each of these tests, the speed was computed as an average over 360 frames, where the volume was rotated 1 degree each time. The measurement was taken using the system clock, and measured only the time it took to setup, call the Compute Shader and then wait for it to return.
 
+The measurements were taken on a GTX 720 on a desktop running an average 
+
 \section{Data Used}
 
 The tests detailed below use five different data volumes. These are listed below.
@@ -57,6 +59,15 @@ The impact of the Local Work Group size on the Computation time was an unknown f
 \caption{\textit{A graph of the average computation times for each work group size over a total of 360 frames.}}
 \end{figure}
 
-One interesting observation that was made was on the errors that cropped up within the volume during evaluation during this test. While varying the size of each dimension disproportionally had no visible difference from varying each dimension equally, it was noticed that if a single dimension became too large, the resulting volume displayed unusual consequences, such as portions no longer rendering, or refusing to render at all. 
+One interesting observation that was made was on the errors that cropped up within the volume during evaluation during this test. While varying the size of each dimension disproportionally had no visible difference from varying each dimension equally, it was noticed that sometimes if a single dimension was large enough, errors would occur in the creation of the visibility field. In the case of the Engine data set, the volume would no longer output a visibility field if the value for the X dimension for the work group exceeded 256, while it would only output a partial visibility field for certain values of Z. This effect was also observed on the results from the saliency field compute shader.
 
-The cause of this error was discovered when the sizes of each volume were determined. The tests were performed for powers of two, but the dimensions of the volumes didn't follow this rule. This caused computational errors to occur as a direct consequence. It is recommended that data volumes undergo a primary step in which the data is transferred into a volume with dimensions of a power of 2, and to also ensure that the work group size is a suitable fraction of the full volume size, so that each work group performs the same amount of work.
+The causes of thes errors was discovered when the sizes of each volume were determined. The tests were performed with volumes where each dimension was a power of 2. However, in table 5.1, very few of the volumes have power of 2 dimensions. In the case of the Engine, its length is 255 voxels, meaning that when it was no longer fully rendering, it meant that the compute shader had gotten too large. 
+
+The partial rendering error can also be explained with the size of the volumes. Since the Z dimension is the smallest, and the volume is aligned on that axis, the error was most noticeable there, but still present on the other axes. When assigning data points to a compute shader, the program divide the volume's dimensions by the size of the work group to get the number of data points per work group. However, since it rounds down, if there is any remainder from the division, those points will not be assigned to a workgroup. With a small workgroup or a large remainder, this effect is more noticeable, but will be present in any data sets whose dimensions won't have many numbers that divide into them evenly. Figure 5.3 was created using work group sizes that minimised this error as much as possible, but it will still be present in any volumes whose dimensions are not a power of 2.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{nucleon_error} 
+\includegraphics[scale=0.6]{nucleon_fine} 
+\caption{\textit{Images showing the result of making the workgroup's x dimension equal to 20, thus cutting off most of the data, compared to making it equal to 41, which is the same as the volume's own dimension}}
+\end{figure}

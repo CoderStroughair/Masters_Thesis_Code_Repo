@@ -25,6 +25,6 @@
 \contentsline {section}{\numberline {5.2}Change in Computation Time against Volume Size}{13}
 \contentsline {section}{\numberline {5.3}Change in Computation Time against Opacity}{14}
 \contentsline {section}{\numberline {5.4}Change in Computation Time against Local Work Group Size}{14}
-\contentsline {chapter}{Chapter{} \numberline {6}Conclusions}{16}
-\contentsline {chapter}{Appendix{} \numberline {A}Abbreviations}{17}
-\contentsline {chapter}{Bibliography}{18}
+\contentsline {chapter}{Chapter{} \numberline {6}Conclusions}{18}
+\contentsline {chapter}{Appendix{} \numberline {A}Abbreviations}{19}
+\contentsline {chapter}{Bibliography}{20}

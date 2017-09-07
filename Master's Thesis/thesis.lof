@@ -6,5 +6,6 @@
 \contentsline {figure}{\numberline {5.1}{\ignorespaces \textit {A graph of the average computation times against the size of the data set being worked with}}}{13}
 \contentsline {figure}{\numberline {5.2}{\ignorespaces \textit {A graph of the average computation times for each version of the transfer function over a total of 360 frames.}}}{14}
 \contentsline {figure}{\numberline {5.3}{\ignorespaces \textit {A graph of the average computation times for each work group size over a total of 360 frames.}}}{15}
+\contentsline {figure}{\numberline {5.4}{\ignorespaces \textit {Images showing the result of making the workgroup's x dimension equal to 20, thus cutting off most of the data, compared to making it equal to 41, which is the same as the volume's own dimension}}}{17}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
