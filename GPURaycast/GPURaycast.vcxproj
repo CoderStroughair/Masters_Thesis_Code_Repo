@@ -23,7 +23,9 @@
     <ClInclude Include="Defines.h" />
     <ClInclude Include="EulerCamera.h" />
     <ClInclude Include="Framebuffer.h" />
+    <ClInclude Include="ft2build.h" />
     <ClInclude Include="GLM.h" />
+    <ClInclude Include="gltext\gl3.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture.h" />
@@ -135,7 +137,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>freeglut.lib;glew32.lib;assimp.lib;SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freeglut.lib;glew32.lib;assimp.lib;SOIL.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

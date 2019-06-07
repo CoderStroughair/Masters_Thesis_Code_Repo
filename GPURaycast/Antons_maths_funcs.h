@@ -1011,7 +1011,7 @@ inline mat4 look_at (const vec3& cam_pos, vec3 targ_pos, const vec3& up) {
 
 // returns a perspective function mimicking the opengl projection style.
 inline mat4 perspective (float fovy, float aspect, float _near, float _far) {
-	float fov_rad = fovy * ONE_DEG_IN_RAD;
+	float fov_rad = (float)fovy * ONE_DEG_IN_RAD;
 	float range = tan (fov_rad / 2.0f) * _near;
 	float sx = (2.0f * _near) / (range * aspect + range * aspect);
 	float sy = _near / range;
@@ -1028,15 +1028,15 @@ inline mat4 perspective (float fovy, float aspect, float _near, float _far) {
 /*----------------------------HAMILTON IN DA HOUSE!---------------------------*/
 inline versor quat_from_axis_rad (float radians, float x, float y, float z) {
 	versor result;
-	result.q[0] = cos (radians / 2.0);
-	result.q[1] = sin (radians / 2.0) * x;
-	result.q[2] = sin (radians / 2.0) * y;
-	result.q[3] = sin (radians / 2.0) * z;
+	result.q[0] = (float)cos (radians / 2.0);
+	result.q[1] = (float)sin (radians / 2.0) * x;
+	result.q[2] = (float)sin (radians / 2.0) * y;
+	result.q[3] = (float)sin (radians / 2.0) * z;
 	return result;
 }
 
 inline versor quat_from_axis_deg (float degrees, float x, float y, float z) {
-	return quat_from_axis_rad (ONE_DEG_IN_RAD * degrees, x, y, z);
+	return quat_from_axis_rad ( ONE_DEG_IN_RAD * degrees, x, y, z);
 }
 
 inline mat4 quat_to_mat4 (const versor& q) {

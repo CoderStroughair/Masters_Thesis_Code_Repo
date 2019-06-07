@@ -21,7 +21,7 @@ public:
 
 	VoxelReader voxelReader;
 
-	void Init();
+	void Init( const char* filepath, const char* filename );
 	void ReverseEndianness();
 };
 

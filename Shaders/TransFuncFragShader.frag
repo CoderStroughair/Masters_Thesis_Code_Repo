@@ -40,11 +40,12 @@ vec4 CalculateLighting(vec4 color, vec3 N)
 	L = normalize(lightDirection);
 	H = normalize(L + normalize(-facePos));
 	
-	float diff = clamp(dot(N,L), 0.0f, 1.0f);
-	float amb = 0.3f;
-	vec4 spec = specularLight * pow (max(0.0f, dot(H, N)), 100.0f); 
+//	float diff = clamp(dot(N,L), 0.0f, 1.0f);
+	float amb = 0.8f;
+//	vec4 spec = specularLight * pow (max(0.0f, dot(H, N)), 100.0f); 
 
-	return ((color * diff) + spec + (color * amb));
+//	return ((color * diff) + spec + (color * amb));
+	return ((color * amb));
 }
 
 

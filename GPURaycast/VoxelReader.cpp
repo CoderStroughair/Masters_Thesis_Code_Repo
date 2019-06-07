@@ -26,7 +26,7 @@ void VoxelReader::ReadMHD(std::string folderPath, std::string headerFile, Volume
 	while (getline(myFile, line))
 		fileLines.push_back(line);
 
-	for (int i=0; i<fileLines.size(); i++)
+	for (unsigned int i=0; i<fileLines.size(); i++)
 	{
 		iss.str(fileLines[i]);
 		iss >> temp;
@@ -114,10 +114,10 @@ void VoxelReader::ReadRaw(VolumeProperties &properties)
 		
 		sort(files.begin(), files.end(), MyFileSort());
 
-		for (int i=0; i<files.size(); i++)
+		for (unsigned int i=0; i<files.size(); i++)
 			files[i] = std::string(properties.rawFilePath + "/" + files[i]);
 
-		for (int i=0; i<files.size(); i++)
+		for (unsigned int i=0; i<files.size(); i++)
 		{
 			CopyFileToBuffer(files[i], numBytesInBufferFilled, properties);
 		}
@@ -144,7 +144,7 @@ void VoxelReader::CopyFileToBuffer(std::string fileName, int &numBytesInBufferFi
 		myFile.read ((char*)properties.bufferAddress + numBytesInBufferFilled, size);
 		myFile.close();
 
-		numBytesInBufferFilled += size;
+		numBytesInBufferFilled += (int)size;
 	}
 	else 
 		std::cout << "Unable to open file";

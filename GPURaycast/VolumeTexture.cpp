@@ -4,14 +4,13 @@
 VolumeTexture::VolumeTexture(VolumeDataset &volume)
 {
 	dataTexture = GenerateTexture(volume);
-	dataTF.Init(TRANS_TOOTH2VVLOW, volume);
 
 	smoothedTexture = GenerateBlankTexture(volume);
 	laplacianTexture = GenerateBlankTexture(volume);
-	laplacianTF.Init(TRANS_LAPLACIAN, volume);
+	laplacianTF.Init(TRANS_LAPLACIAN);
 
 	visibilityTexture = GenerateBlankTexture(volume);
-	visibilityTF.Init(TRANS_VISIBILITY, volume);
+	visibilityTF.Init(TRANS_VISIBILITY);
 }
 
 void VolumeTexture::UpdateTexture(int currentTimestep, VolumeDataset &volume)

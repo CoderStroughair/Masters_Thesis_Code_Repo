@@ -1,7 +1,8 @@
 #include "TransferFunction.h"
 
-void TransferFunction::Init(const char *filename, VolumeDataset &volume_)
+void TransferFunction::Init(const char *filename)
 {
+	fileName = filename;
 	// Want the transfer functions to have 256 possible values
 	colorTable.resize(256);
 	LoadXML(filename);
@@ -48,7 +49,7 @@ void TransferFunction::LoadXML(const char *filename)
 
 	while (key)
 	{
-		float intensity = atof(key->FirstChildElement("intensity")->Attribute("value"));
+		float intensity = (float)atof(key->FirstChildElement("intensity")->Attribute("value"));
 		intensities.push_back(intensity);
 
 		int r = atoi(key->FirstChildElement("colorL")->Attribute("r"));

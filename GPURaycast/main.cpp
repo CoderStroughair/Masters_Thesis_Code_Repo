@@ -11,14 +11,16 @@
 #include "EulerCamera.h"
 #include "Shader.h"
 #include "Utilities.h"
-
 #include "VolumeDataset.h"
 #include "VolumeTexture.h"
 #include "Framebuffer.h"
+#include <map>
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 using namespace std;
 
-const float width = 900, height = 900;
+const int width = 900, height = 900;
 /*----------------------------------------------------------------------------
 						MESH AND TEXTURE VARIABLES
 ----------------------------------------------------------------------------*/
@@ -27,17 +29,67 @@ Framebuffer fbVisibility, fbVolume;
 							CAMERA VARIABLES
 ----------------------------------------------------------------------------*/
 EulerCamera dataVolumeCamera, overlayCamera;
-int rotateVisualZ = 0, rotateVisualY = 0;
-int rotateDataZ = 0, rotateDataY = 0;
+float rotateVisualZ = 0, rotateVisualY = 0;
+float rotateDataZ = 0, rotateDataY = 0;
 /*----------------------------------------------------------------------------
 								SHADER VARIABLES
 ----------------------------------------------------------------------------*/
+std::vector<TransferFunction> transferFunctions;
+int tfIdx = 0;
 
+const char* TFStrings[] = 
+{
+	TRANS_CTKNEE, TRANS_VISMALE, TRANS_BLUESMOKE, TRANS_NUCLEON, TRANS_MRI_KNEE,
+	TRANS_MRI_KNEE_TRANS, TRANS_SUPERNOVA, TRANS_TEST, TRANS_TEST2, TRANS_TOOTH, 
+	TRANS_TOOTH2, TRANS_TOOTH2LOW, TRANS_TOOTH2VLOW, TRANS_TOOTH2VVLOW, TRANS_ENGINE
+};
+
+void InitialiseTransferFunctions()
+{
+	for( int i = 0; i < (sizeof( TFStrings ) / sizeof( *TFStrings )); i++ )
+	{
+		TransferFunction TF;
+		TF.Init(TFStrings[i]);
+		transferFunctions.push_back( TF );
+	}
+}
+/*----------------------------------------------------------------------------
+							VOLUME VARIABLES
+----------------------------------------------------------------------------*/
+
+struct VolumeDataPaths
+{
+	const char* path;
+	const char* fileName;
+	VolumeDataPaths(const char* _path, const char* _fileName):
+		path(_path),
+		fileName(_fileName){}
+};
+
+VolumeDataPaths dataPaths[] = 
+{
+	VolumeDataPaths( BONSAI_PATH , BONSAI_HEADER ), 
+	VolumeDataPaths( KNEE_PATH , KNEE_HEADER ),
+	VolumeDataPaths( NUCLEON_PATH , NUCLEON_HEADER ),
+	VolumeDataPaths( TOOTH_PATH , TOOTH_HEADER ),
+	VolumeDataPaths( ENGINE_PATH , ENGINE_HEADER )
+};
+int volumeIdx = 0;
+//std::vector<VolumeDataset> volumes;
+VolumeDataset volume;
+VolumeTexture* volumeContainer3D;
+void InitialiseVolumeDataset()
+{
+	volume.Init( dataPaths[volumeIdx].path, dataPaths[volumeIdx].fileName );
+	if( volumeContainer3D )
+	{
+		delete volumeContainer3D;
+	}
+	volumeContainer3D = new VolumeTexture( volume );
+}
 /*----------------------------------------------------------------------------
 							OTHER VARIABLES
 ----------------------------------------------------------------------------*/
-VolumeDataset volume;
-VolumeTexture* volumeContainer3D;
 clock_t oldTime;
 int currentTimestep = 0;
 bool laplacianFinished = false;
@@ -48,18 +100,21 @@ float visibilityLowerLimit = 0.0f;
 float average = 0;
 float total = 0;
 int numNumbers = 0;
+
+float timeTillAutoRotate = 0;
 /*----------------------------------------------------------------------------
 						FUNCTION DEFINITIONS
 ----------------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------------*/
 
-GLuint visibilityVAO, volumeVAO, overlayID, transfuncShaderID, computeShaderID, inverseComputeShaderID, LaplaceShaderID, MaximaShaderID;
+GLuint visibilityVAO, volumeVAO, overlayID, transfuncShaderID, computeShaderID, inverseComputeShaderID, LaplaceShaderID, MaximaShaderID, TextShaderID;
 GLuint visibilityShaderID;
 int tex_w = width*3, tex_h = height*3;
 
 void init()
 {
+	InitialiseTransferFunctions();
 	fbVisibility.init(width, height);
 	fbVolume.init(width, height);
 	Shader shaderFactory;
@@ -78,9 +133,7 @@ void init()
 
 	dataVolumeCamera = EulerCamera(glm::vec3(0.0, 0.0, -5.0), width/2, height);
 	overlayCamera = EulerCamera(glm::vec3(0.0, 0.0, -5.0), width/2, height);
-	volume.Init();
-	volumeContainer3D = new VolumeTexture(volume);
-
+	InitialiseVolumeDataset();
 }
 
 void display()
@@ -89,13 +142,13 @@ void display()
 
 	if (laplacianFinished != true)
 	{
-		LaunchComputeShader(LaplaceShaderID, volumeContainer3D->dataTexture, volumeContainer3D->laplacianTexture, volume, visibilityLowerLimit, volumeContainer3D->dataTF.tfTexture);
+		LaunchComputeShader(LaplaceShaderID, volumeContainer3D->dataTexture, volumeContainer3D->laplacianTexture, volume, visibilityLowerLimit, transferFunctions[tfIdx].tfTexture);
 		laplacianFinished = true;
 	}
 
 	clock_t initial = clock();
 
-	LaunchVisibilityComputeShader(volumeContainer3D, visibilityShaderID, dataVolumeCamera, volume, visibilityLowerLimit);
+	LaunchVisibilityComputeShader(volumeContainer3D, transferFunctions[tfIdx], visibilityShaderID, dataVolumeCamera, volume, visibilityLowerLimit);
 
 	clock_t timeTaken = clock() - initial;
 	//Probably around here you're gonna need to start setting up your variables to go into the Raycasting.
@@ -104,7 +157,7 @@ void display()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 
-	Raycast(volumeContainer3D->dataTF, volumeContainer3D->dataTexture, transfuncShaderID, dataVolumeCamera);
+	Raycast( transferFunctions[tfIdx], volumeContainer3D->dataTexture, transfuncShaderID, dataVolumeCamera);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, fbVisibility.framebuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -147,28 +200,40 @@ void display()
 
 void updateScene() 
 {	
+	clock_t currentTime = clock();
+	float deltaTime = (currentTime - oldTime) / (float)CLOCKS_PER_SEC;
 	if (volume.timesteps > 1)
 	{
-		clock_t currentTime = clock();
-		float time = (currentTime - oldTime) / (float)CLOCKS_PER_SEC;
-
-		if (time > volume.timePerFrame)
+		if (deltaTime > volume.timePerFrame)
 		{
 			if (currentTimestep < volume.timesteps - 2)
 				currentTimestep++;
 			else
 				currentTimestep = 0;
 
-			oldTime = currentTime;
-
 			volumeContainer3D->UpdateTexture(currentTimestep, volume);
 		}
 	}
-	dataVolumeCamera.orbitAround(glm::vec3(0.0, 0.0, 0.0), 1, 1);
+
+	if( rotateDataY != 0 || rotateDataZ != 0 )
+	{
+		timeTillAutoRotate = 5;
+	}
+	if( timeTillAutoRotate > 0 )
+	{
+		timeTillAutoRotate -= deltaTime;
+		dataVolumeCamera.orbitAround( glm::vec3( 0.0, 0.0, 0.0 ), rotateDataZ, rotateDataY );
+	}
+	else
+	{
+		dataVolumeCamera.orbitAround( glm::vec3( 0.0, 0.0, 0.0 ), 1, 1 );
+	}
 
 	overlayCamera.orbitAround(glm::vec3(0.0, 0.0, 0.0), rotateVisualZ, rotateVisualY);
 
-	visibilityLowerLimit += changeLowerLimit / 10.0;
+	visibilityLowerLimit += (float)changeLowerLimit / 10.0f;
+
+	oldTime = currentTime;
 
 	glutPostRedisplay();
 }
@@ -183,41 +248,69 @@ void keypress(unsigned char key, int x, int y) {
 		break;
 	case('w'):
 	case('W'):
-		rotateDataZ = -1;
+		rotateDataZ = -1.0f;
 		break;
 	case('s'):
 	case('S'):
-		rotateDataZ = 1;
+		rotateDataZ = 1.0f;
 		break;
 	case('a'):
 	case('A'):
-		rotateDataY = -1;
+		rotateDataY = -1.0f;
 		break;
 	case('d'):
 	case('D'):
-		rotateDataY = 1;
+		rotateDataY = 1.0f;
 		break;
 	case('q'):
 	case('Q'):
+		tfIdx++;
+		if( tfIdx >= (sizeof( TFStrings ) / sizeof( *TFStrings )) )
+		{
+			tfIdx = 0;
+		}
 		break;
 	case('e'):
 	case('E'):
+		tfIdx--;
+		if( tfIdx < 0 )
+		{
+			tfIdx = (sizeof( TFStrings ) / sizeof( *TFStrings )) - 1;;
+		}
+		break;
+	case('z'):
+	case('Z'):
+		volumeIdx++;
+		if( volumeIdx >= (sizeof( dataPaths ) / sizeof( *dataPaths )) )
+		{
+			volumeIdx = 0;
+		}
+		InitialiseVolumeDataset();
+		break;
+	case('c'):
+	case('C'):
+		volumeIdx--;
+		if( volumeIdx < 0 )
+		{
+			volumeIdx = (sizeof( dataPaths ) / sizeof( *dataPaths )) - 1;;
+		}
+		InitialiseVolumeDataset();
 		break;
 	case('i'):
 	case('I'):
-		rotateVisualZ = -1;
+		rotateVisualZ = -1.0f;
 		break;
 	case('k'):
 	case('K'):
-		rotateVisualZ = 1;
+		rotateVisualZ = 1.0f;
 		break;
 	case('j'):
 	case('J'):
-		rotateVisualY = -1;
+		rotateVisualY = -1.0f;
 		break;
 	case('l'):
 	case('L'):
-		rotateVisualY = 1;
+		rotateVisualY = 1.0f;
 		break;
 	}
 }
@@ -229,13 +322,13 @@ void keypressUp(unsigned char key, int x, int y){
 	case('s'):
 	case('W'):
 	case('S'):
-		rotateDataZ = 0;
+		rotateDataZ = 0.0f;
 		break;
 	case('a'):
 	case('d'):
 	case('A'):
 	case('D'):
-		rotateDataY = 0;
+		rotateDataY = 0.0f;
 		break;
 	case('q'):
 	case('e'):
@@ -246,13 +339,13 @@ void keypressUp(unsigned char key, int x, int y){
 	case('I'):
 	case('k'):
 	case('K'):
-		rotateVisualZ = 0;
+		rotateVisualZ = 0.0f;
 		break;
 	case('j'):
 	case('J'):
 	case('l'):
 	case('L'):
-		rotateVisualY = 0;
+		rotateVisualY = 0.0f;
 		break;
 	case(' '):
 		renderLaplace = !renderLaplace;
@@ -316,7 +409,7 @@ int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 	glutInitWindowSize(width, height);
-	glutCreateWindow("GameApp");
+	glutCreateWindow( "Master's Project - Quantifying Visibility in Volume Rendering with Compute Shaders");
 	glutSetCursor(GLUT_CURSOR_CROSSHAIR);
 
 

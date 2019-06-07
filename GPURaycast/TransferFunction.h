@@ -17,12 +17,14 @@ public:
 	std::vector<glm::vec4> colors;
 	std::vector<float> intensities;
 	
+	std::string fileName;
+
 	int numIntensities;
 	GLuint tfTexture;
 
 	std::vector<glm::vec4> colorTable;
 
-	void Init(const char *filename, VolumeDataset &volume_);
+	void Init(const char *filename);
 	void LoadXML(const char *filename);
 	void LoadLookup(std::vector<glm::vec4> &colorTable);
 	void CopyToTex(std::vector<glm::vec4> &data);

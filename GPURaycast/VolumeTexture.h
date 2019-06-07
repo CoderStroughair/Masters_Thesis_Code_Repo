@@ -9,7 +9,6 @@
 class VolumeTexture
 {
 public:
-	TransferFunction dataTF;
 	TransferFunction visibilityTF;
 	TransferFunction laplacianTF;
 

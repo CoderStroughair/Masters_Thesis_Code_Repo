@@ -2,10 +2,10 @@
 #include "Defines.h"
 
 // Initializes volume by calling voxel reader and copying in values from header
-void VolumeDataset::Init()
+void VolumeDataset::Init(const char* filepath, const char* filename)
 {
 	VolumeProperties properties;
-	voxelReader.LoadVolume(ENGINE_PATH, ENGINE_HEADER, properties);
+	voxelReader.LoadVolume( filepath, filename, properties);
 
 	memblock3D = properties.bufferAddress;
 	timesteps = properties.timesteps;
@@ -28,7 +28,7 @@ void VolumeDataset::ReverseEndianness()
 	std::vector<GLubyte> bytes;
 	bytes.resize(xRes * yRes * zRes * bytesPerElement);
 
-	for (int i=0; i<bytes.size(); i+=bytesPerElement)
+	for (unsigned int i=0; i<bytes.size(); i+=bytesPerElement)
 	{
 		for (int j=0; j<bytesPerElement; j++)
 		{

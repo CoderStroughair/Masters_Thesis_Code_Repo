@@ -243,7 +243,7 @@ void LaunchComputeShader(GLuint shaderProgramID, GLuint initialTexture3D, GLuint
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
-void LaunchVisibilityComputeShader(VolumeTexture* container, GLuint shaderProgramID, EulerCamera camera, VolumeDataset volume, GLfloat visibilityLowerLimit)
+void LaunchVisibilityComputeShader(VolumeTexture* container, TransferFunction tf, GLuint shaderProgramID, EulerCamera camera, VolumeDataset volume, GLfloat visibilityLowerLimit)
 {
 	glUseProgram(shaderProgramID);
 	glBindImageTexture(0, container->visibilityTexture, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
@@ -259,7 +259,7 @@ void LaunchVisibilityComputeShader(VolumeTexture* container, GLuint shaderProgra
 
 	glActiveTexture(GL_TEXTURE1);
 	glUniform1i(glGetUniformLocation(shaderProgramID, "transferFunc"), 1);
-	glBindTexture(GL_TEXTURE_1D, container->dataTF.tfTexture);
+	glBindTexture(GL_TEXTURE_1D, tf.tfTexture);
 
 	GLint localWorkGroupSize[3] = { 0 };
 	glGetProgramiv(shaderProgramID, GL_COMPUTE_WORK_GROUP_SIZE, localWorkGroupSize);
