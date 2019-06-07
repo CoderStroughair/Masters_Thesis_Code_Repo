@@ -15,8 +15,6 @@
 #include "VolumeTexture.h"
 #include "Framebuffer.h"
 #include <map>
-#include <ft2build.h>
-#include FT_FREETYPE_H
 
 using namespace std;
 
