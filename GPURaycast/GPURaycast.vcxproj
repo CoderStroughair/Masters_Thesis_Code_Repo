@@ -39,6 +39,7 @@
   <ItemGroup>
     <ClCompile Include="EulerCamera.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="VolumeTexture.cpp" />
     <ClCompile Include="tinyxml2.cpp" />
     <ClCompile Include="TransferFunction.cpp" />

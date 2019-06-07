@@ -32,7 +32,10 @@ float rotateDataZ = 0, rotateDataY = 0;
 /*----------------------------------------------------------------------------
 								SHADER VARIABLES
 ----------------------------------------------------------------------------*/
-std::vector<TransferFunction> transferFunctions;
+
+GLuint visibilityVAO, volumeVAO, overlayID, transfuncShaderID, computeShaderID, inverseComputeShaderID, LaplaceShaderID, MaximaShaderID, TextShaderID;
+GLuint visibilityShaderID;
+
 int tfIdx = 0;
 
 const char* TFStrings[] = 
@@ -42,15 +45,14 @@ const char* TFStrings[] =
 	TRANS_TOOTH2, TRANS_TOOTH2LOW, TRANS_TOOTH2VLOW, TRANS_TOOTH2VVLOW, TRANS_ENGINE
 };
 
-void InitialiseTransferFunctions()
+struct TFStruct
 {
-	for( int i = 0; i < (sizeof( TFStrings ) / sizeof( *TFStrings )); i++ )
-	{
-		TransferFunction TF;
-		TF.Init(TFStrings[i]);
-		transferFunctions.push_back( TF );
-	}
-}
+	string name;
+	TransferFunction TF;
+};
+
+std::vector<TFStruct> transferFunctions;
+void InitialiseTransferFunctions();
 /*----------------------------------------------------------------------------
 							VOLUME VARIABLES
 ----------------------------------------------------------------------------*/
@@ -72,19 +74,10 @@ VolumeDataPaths dataPaths[] =
 	VolumeDataPaths( TOOTH_PATH , TOOTH_HEADER ),
 	VolumeDataPaths( ENGINE_PATH , ENGINE_HEADER )
 };
-int volumeIdx = 0;
-//std::vector<VolumeDataset> volumes;
+int dataIdx = 0;
 VolumeDataset volume;
 VolumeTexture* volumeContainer3D;
-void InitialiseVolumeDataset()
-{
-	volume.Init( dataPaths[volumeIdx].path, dataPaths[volumeIdx].fileName );
-	if( volumeContainer3D )
-	{
-		delete volumeContainer3D;
-	}
-	volumeContainer3D = new VolumeTexture( volume );
-}
+void InitialiseVolumeDataset();
 /*----------------------------------------------------------------------------
 							OTHER VARIABLES
 ----------------------------------------------------------------------------*/
@@ -103,113 +96,139 @@ float timeTillAutoRotate = 0;
 /*----------------------------------------------------------------------------
 						FUNCTION DEFINITIONS
 ----------------------------------------------------------------------------*/
+void InitialiseTransferFunctions()
+{
+	for( int i = 0; i < (sizeof( TFStrings ) / sizeof( *TFStrings )); i++ )
+	{
+		TransferFunction TF;
+		TF.Init( TFStrings[i] );
+		TFStruct tfStruct;
+		tfStruct.TF = TF;
+		string _name = TFStrings[i];
+		if( _name.find( "/" ) != _name.npos )
+		{
+			tfStruct.name = _name.substr( _name.find( "/" ), _name.length() );
+		}
+		else
+		{
+			tfStruct.name = _name;
+		}
+		transferFunctions.push_back( tfStruct );
+	}
+	std::cout << "Changing transfer function to " << transferFunctions[tfIdx].name << endl;
+}
 
-/*--------------------------------------------------------------------------*/
-
-GLuint visibilityVAO, volumeVAO, overlayID, transfuncShaderID, computeShaderID, inverseComputeShaderID, LaplaceShaderID, MaximaShaderID, TextShaderID;
-GLuint visibilityShaderID;
-int tex_w = width*3, tex_h = height*3;
+void InitialiseVolumeDataset()
+{
+	volume.Init( dataPaths[dataIdx].path, dataPaths[dataIdx].fileName );
+	if( volumeContainer3D )
+	{
+		delete volumeContainer3D;
+	}
+	volumeContainer3D = new VolumeTexture( volume );
+	std::cout << "Changing Data set to " << dataPaths[dataIdx].fileName << endl;
+}
 
 void init()
 {
 	InitialiseTransferFunctions();
-	fbVisibility.init(width, height);
-	fbVolume.init(width, height);
-	Shader shaderFactory;
-	computeShaderID = shaderFactory.CompileComputeShader(RAY_COMPUTE_SHADER);
-	inverseComputeShaderID = shaderFactory.CompileComputeShader(INVERSE_COMPUTE_SHADER);
-	LaplaceShaderID = shaderFactory.CompileComputeShader(LAPLACIAN_COMPUTE_SHADER);
-	MaximaShaderID = shaderFactory.CompileComputeShader(LOCAL_MAXIMA_COMPUTE_SHADER);
-	visibilityShaderID = shaderFactory.CompileComputeShader(VISIBILITY_COMPUTE_SHADER);
-	volumeVAO = createOverlayQuad(4);
-	visibilityVAO = createOverlayQuad(5);
-	overlayID = shaderFactory.CompileShader(VERTEX_SHADER, FRAGMENT_SHADER);
-	transfuncShaderID = shaderFactory.CompileShader(TRANS_VERTEX_SHADER, TRANS_FRAGMENT_SHADER);
+	fbVisibility.init( width, height );
+	fbVolume.init( width, height );
+	Shader* shaderFactory = Shader::GetInstance();
+	computeShaderID = shaderFactory->CompileComputeShader( RAY_COMPUTE_SHADER );
+	inverseComputeShaderID = shaderFactory->CompileComputeShader( INVERSE_COMPUTE_SHADER );
+	LaplaceShaderID = shaderFactory->CompileComputeShader( LAPLACIAN_COMPUTE_SHADER );
+	MaximaShaderID = shaderFactory->CompileComputeShader( LOCAL_MAXIMA_COMPUTE_SHADER );
+	visibilityShaderID = shaderFactory->CompileComputeShader( VISIBILITY_COMPUTE_SHADER );
+	volumeVAO = createOverlayQuad( 4 );
+	visibilityVAO = createOverlayQuad( 5 );
+	overlayID = shaderFactory->CompileShader( VERTEX_SHADER, FRAGMENT_SHADER );
+	transfuncShaderID = shaderFactory->CompileShader( TRANS_VERTEX_SHADER, TRANS_FRAGMENT_SHADER );
 	DebugWorkGroups();
 
-	glEnable(GL_DEPTH_TEST);
+	glEnable( GL_DEPTH_TEST );
 
-	dataVolumeCamera = EulerCamera(glm::vec3(0.0, 0.0, -5.0), width/2, height);
-	overlayCamera = EulerCamera(glm::vec3(0.0, 0.0, -5.0), width/2, height);
+	dataVolumeCamera = EulerCamera( glm::vec3( 0.0, 0.0, -5.0 ), width / 2, height );
+	overlayCamera = EulerCamera( glm::vec3( 0.0, 0.0, -5.0 ), width / 2, height );
 	InitialiseVolumeDataset();
 }
 
-void display()
+void RenderLoop()
 {
 	static vector<float> numberBacklog;
 
-	if (laplacianFinished != true)
+	if( laplacianFinished != true )
 	{
-		LaunchComputeShader(LaplaceShaderID, volumeContainer3D->dataTexture, volumeContainer3D->laplacianTexture, volume, visibilityLowerLimit, transferFunctions[tfIdx].tfTexture);
+		LaunchComputeShader( LaplaceShaderID, volumeContainer3D->dataTexture, volumeContainer3D->laplacianTexture, volume, visibilityLowerLimit, transferFunctions[tfIdx].TF.tfTexture );
 		laplacianFinished = true;
 	}
 
 	clock_t initial = clock();
 
-	LaunchVisibilityComputeShader(volumeContainer3D, transferFunctions[tfIdx], visibilityShaderID, dataVolumeCamera, volume, visibilityLowerLimit);
+	LaunchVisibilityComputeShader( volumeContainer3D, transferFunctions[tfIdx].TF, visibilityShaderID, dataVolumeCamera, volume, visibilityLowerLimit );
 
 	clock_t timeTaken = clock() - initial;
 	//Probably around here you're gonna need to start setting up your variables to go into the Raycasting.
 
-	glBindFramebuffer(GL_FRAMEBUFFER, fbVolume.framebuffer);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glBindFramebuffer( GL_FRAMEBUFFER, fbVolume.framebuffer );
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glClearColor( 1.0, 1.0, 1.0, 1.0 );
 
-	Raycast( transferFunctions[tfIdx], volumeContainer3D->dataTexture, transfuncShaderID, dataVolumeCamera);
+	Raycast( transferFunctions[tfIdx].TF, volumeContainer3D->dataTexture, transfuncShaderID, dataVolumeCamera );
 
-	glBindFramebuffer(GL_FRAMEBUFFER, fbVisibility.framebuffer);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glBindFramebuffer( GL_FRAMEBUFFER, fbVisibility.framebuffer );
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glClearColor( 1.0, 1.0, 1.0, 1.0 );
 
-	if (renderLaplace)
+	if( renderLaplace )
 	{
-		Raycast(volumeContainer3D->laplacianTF, volumeContainer3D->laplacianTexture, transfuncShaderID, overlayCamera);
+		Raycast( volumeContainer3D->laplacianTF, volumeContainer3D->laplacianTexture, transfuncShaderID, overlayCamera );
 	}
 	else
 	{
-		Raycast(volumeContainer3D->visibilityTF, volumeContainer3D->visibilityTexture, transfuncShaderID, overlayCamera);
+		Raycast( volumeContainer3D->visibilityTF, volumeContainer3D->visibilityTexture, transfuncShaderID, overlayCamera );
 	}
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glClearColor( 1.0, 1.0, 1.0, 1.0 );
 
-	glUseProgram(overlayID);
-	glBindVertexArray(visibilityVAO);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, fbVisibility.tex);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glUseProgram( overlayID );
+	glBindVertexArray( visibilityVAO );
+	glActiveTexture( GL_TEXTURE0 );
+	glBindTexture( GL_TEXTURE_2D, fbVisibility.tex );
+	glDrawArrays( GL_TRIANGLE_STRIP, 0, 4 );
 
-	glBindVertexArray(volumeVAO);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, fbVolume.tex);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindVertexArray( volumeVAO );
+	glActiveTexture( GL_TEXTURE0 );
+	glBindTexture( GL_TEXTURE_2D, fbVolume.tex );
+	glDrawArrays( GL_TRIANGLE_STRIP, 0, 4 );
 
 	glutSwapBuffers();
 
 	total += timeTaken;
 	numNumbers++;
 	average = total / numNumbers;
-	if (numNumbers == 360)
+	if( numNumbers == 360 )
 	{
-		cout << "Average of 360 frames: " << average/CLOCKS_PER_SEC * 1000 <<"ms"<< endl;
+		cout << "Average of 360 frames: " << average / CLOCKS_PER_SEC * 1000 << "ms" << endl;
 	}
 }
 
-void updateScene() 
-{	
+void Update()
+{
 	clock_t currentTime = clock();
 	float deltaTime = (currentTime - oldTime) / (float)CLOCKS_PER_SEC;
-	if (volume.timesteps > 1)
+	if( volume.timesteps > 1 )
 	{
-		if (deltaTime > volume.timePerFrame)
+		if( deltaTime > volume.timePerFrame )
 		{
-			if (currentTimestep < volume.timesteps - 2)
+			if( currentTimestep < volume.timesteps - 2 )
 				currentTimestep++;
 			else
 				currentTimestep = 0;
 
-			volumeContainer3D->UpdateTexture(currentTimestep, volume);
+			volumeContainer3D->UpdateTexture( currentTimestep, volume );
 		}
 	}
 
@@ -227,7 +246,7 @@ void updateScene()
 		dataVolumeCamera.orbitAround( glm::vec3( 0.0, 0.0, 0.0 ), 1, 1 );
 	}
 
-	overlayCamera.orbitAround(glm::vec3(0.0, 0.0, 0.0), rotateVisualZ, rotateVisualY);
+	overlayCamera.orbitAround( glm::vec3( 0.0, 0.0, 0.0 ), rotateVisualZ, rotateVisualY );
 
 	visibilityLowerLimit += (float)changeLowerLimit / 10.0f;
 
@@ -235,6 +254,8 @@ void updateScene()
 
 	glutPostRedisplay();
 }
+
+/*--------------------------------------------------------------------------*/
 
 #pragma region INPUT FUNCTIONS
 
@@ -262,37 +283,15 @@ void keypress(unsigned char key, int x, int y) {
 		break;
 	case('q'):
 	case('Q'):
-		tfIdx++;
-		if( tfIdx >= (sizeof( TFStrings ) / sizeof( *TFStrings )) )
-		{
-			tfIdx = 0;
-		}
 		break;
 	case('e'):
 	case('E'):
-		tfIdx--;
-		if( tfIdx < 0 )
-		{
-			tfIdx = (sizeof( TFStrings ) / sizeof( *TFStrings )) - 1;;
-		}
 		break;
 	case('z'):
 	case('Z'):
-		volumeIdx++;
-		if( volumeIdx >= (sizeof( dataPaths ) / sizeof( *dataPaths )) )
-		{
-			volumeIdx = 0;
-		}
-		InitialiseVolumeDataset();
 		break;
 	case('c'):
 	case('C'):
-		volumeIdx--;
-		if( volumeIdx < 0 )
-		{
-			volumeIdx = (sizeof( dataPaths ) / sizeof( *dataPaths )) - 1;;
-		}
-		InitialiseVolumeDataset();
 		break;
 	case('i'):
 	case('I'):
@@ -329,9 +328,40 @@ void keypressUp(unsigned char key, int x, int y){
 		rotateDataY = 0.0f;
 		break;
 	case('q'):
-	case('e'):
 	case('Q'):
+		tfIdx++;
+		if( tfIdx >= (sizeof( TFStrings ) / sizeof( *TFStrings )) )
+		{
+			tfIdx = 0;
+		}
+		std::cout << "Changing transfer function to " << transferFunctions[tfIdx].name << endl;
+		break;
+	case('e'):
 	case('E'):
+		tfIdx--;
+		if( tfIdx < 0 )
+		{
+			tfIdx = (sizeof( TFStrings ) / sizeof( *TFStrings )) - 1;;
+		}
+		std::cout << "Changing transfer function to " << transferFunctions[tfIdx].name << endl;
+		break;
+	case('z'):
+	case('Z'):
+		dataIdx++;
+		if( dataIdx >= (sizeof( dataPaths ) / sizeof( *dataPaths )) )
+		{
+			dataIdx = 0;
+		}
+		InitialiseVolumeDataset();
+		break;
+	case('c'):
+	case('C'):
+		dataIdx--;
+		if( dataIdx < 0 )
+		{
+			dataIdx = (sizeof( dataPaths ) / sizeof( *dataPaths )) - 1;;
+		}
+		InitialiseVolumeDataset();
 		break;
 	case('i'):
 	case('I'):
@@ -368,13 +398,17 @@ void specialKeypress(int key, int x, int y){
 		break;
 	case(GLUT_KEY_F1):
 		changeLowerLimit = 1;
-		if(renderLaplace)
-		laplacianFinished = false;
+		if( renderLaplace )
+		{
+			laplacianFinished = false;
+		}
 		break;
 	case(GLUT_KEY_F2):
 		changeLowerLimit = -1;
-		if(renderLaplace)
-		laplacianFinished = false;
+		if( renderLaplace )
+		{
+			laplacianFinished = false;
+		}
 		break;
 	}
 }
@@ -395,11 +429,6 @@ void specialKeypressUp(int key, int x, int y){
 	}
 }
 
-void (mouse)(int x, int y)
-{
-
-}
-
 #pragma endregion INPUT FUNCTIONS
 
 int main(int argc, char** argv) {
@@ -413,12 +442,11 @@ int main(int argc, char** argv) {
 
 	// Tell glut where the display function is
 	glutWarpPointer(width / 2, height / 2);
-	glutDisplayFunc(display);
-	glutIdleFunc(updateScene);
+	glutDisplayFunc(RenderLoop);
+	glutIdleFunc(Update);
 
 	// Input Function Initialisers //
 	glutKeyboardFunc(keypress);
-	glutPassiveMotionFunc(mouse);
 	glutSpecialFunc(specialKeypress);
 	glutSpecialUpFunc(specialKeypressUp);
 	glutKeyboardUpFunc(keypressUp);
@@ -426,7 +454,8 @@ int main(int argc, char** argv) {
 	// A call to glewInit() must be done after glut is initialized!
 	GLenum res = glewInit();
 	// Check for any errors
-	if (res != GLEW_OK) {
+	if (res != GLEW_OK) 
+	{
 		fprintf(stderr, "Error: '%s'\n", glewGetErrorString(res));
 		return 1;
 	}
